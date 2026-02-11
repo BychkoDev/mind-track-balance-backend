@@ -57,3 +57,6 @@ jest-global-setup.js
 
 # Dependency directories
 jspm_packages/
+
+# Project Documentation
+technical plan MindTrack Balance.pdf
