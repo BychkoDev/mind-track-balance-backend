@@ -8,9 +8,11 @@ yarn.lock
 # NestJS specific
 dist/
 coverage/
+node_modules/
+.eslintcache
 
-# WebStorm
-.idea/
+# VSCode
+.vscode/
 
 # Logs
 *.log
@@ -60,3 +62,8 @@ jspm_packages/
 
 # Project Documentation
 technical plan MindTrack Balance.pdf
+
+**/migrations/*
+pgdata/
+libs/
+db/

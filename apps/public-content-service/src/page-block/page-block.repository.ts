@@ -1,14 +1,9 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { PageBlock } from './page-block.entity';
+import { PrismaService } from '@app/common';
 
 @Injectable()
 export class PageBlockRepository {
-  constructor(
-    @InjectRepository(PageBlock)
-    private readonly repository: Repository<PageBlock>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   // async findByEmail(email: string): Promise<User  | null> {
   //     return this.adminUserRepository.findOne({ where: { email } });

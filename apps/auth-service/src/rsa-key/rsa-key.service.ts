@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { generateKeyPairSync } from 'crypto';
 import { RsaKeyRepository } from './rsa-key.repository';
-import { RsaKey } from './rsa-key.entity';
+import { RsaKey } from '@prisma/client';
 
 @Injectable()
 export class RsaKeyService implements OnModuleInit {
@@ -57,7 +57,7 @@ export class RsaKeyService implements OnModuleInit {
       dateOfRevoked,
     );
     this.logger.log('New RSA key pair has been generated and saved.');
-    return await this.repository.saveRsaKey(newKey);
+    return newKey;
   }
 
   // Публічні методи для отримання ключів іншими сервісами

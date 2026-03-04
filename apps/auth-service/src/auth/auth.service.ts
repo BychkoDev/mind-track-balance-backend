@@ -4,9 +4,10 @@ import { ConfigService } from '@nestjs/config';
 import * as bcrypt from 'bcryptjs';
 import { AuthUserService } from '../auth-user/auth-user.service';
 import { LoginDto } from './dto/login.dto';
+import { SignupDto } from './dto/signup.dto';
 import { JwtTokensDto } from './dto/jwt-tokens.dto';
-import { AuthUser } from '../auth-user/auth-user.entity';
-import { AuthUserJwtRefreshToken } from '../auth-user/auth-user-jwt-refresh-token.entity';
+import { AuthUser } from '@prisma/client';
+import { ForbiddenException } from '@nestjs/common';
 
 export interface TokenPayload {
   sub: string;
@@ -23,6 +24,10 @@ export class AuthService {
     private readonly configService: ConfigService,
   ) {}
 
+  async signup(signupDto: SignupDto): Promise<void> {
+    return this.authUserService.sighup(signupDto);
+  }
+
   async login(loginDto: LoginDto): Promise<JwtTokensDto> {
     const user = await this.authUserService.validateUser(
       loginDto.email,
@@ -31,53 +36,69 @@ export class AuthService {
     const deletionTime = new Date();
     deletionTime.setDate(deletionTime.getDate() + 7);
     const tokens = await this._createTokens(user);
-    if (user.jwtRefreshToken == null) {
-      user.jwtRefreshToken = {
-        user: user,
-      } as AuthUserJwtRefreshToken;
-    }
-    user.jwtRefreshToken.deletionTime = deletionTime;
-    user.jwtRefreshToken.deviceId = loginDto.deviceId;
-    user.jwtRefreshToken.jwtRefreshToken = await this._hashJwtRefreshToken(
-      tokens.refreshToken,
-    );
-    await this.authUserService.saveUser(user);
+    
+    await this.authUserService.upsertRefreshToken(user.uuid, {
+      deletionTime: deletionTime,
+      deviceId: loginDto.deviceId,
+      jwtRefreshToken: await this._hashJwtRefreshToken(tokens.refreshToken),
+    });
+
     return tokens;
   }
 
   /**
    * Вихід з системи: видалення refresh токена з бази.
    */
-  // async logout(userId: number): Promise<void> {
-  //     await this.authUserService.updateRefreshToken(userId, null);
-  // }
+  async logout(userUuid: string): Promise<void> {
+    await this.authUserService.upsertRefreshToken(userUuid, {
+      jwtRefreshToken: null,
+      deletionTime: new Date(),
+    });
+  }
 
   /**
    * Оновлення пари токенів за допомогою refresh токена.
    */
-  // async refreshTokens(userId: number, refreshToken: string): Promise<JwtTokensDto> {
-  //     const user = await this.authUserService.findUserById(userId);
-  //     if (!user || !user.hashedRefreshToken) {
-  //         throw new ForbiddenException('Доступ заборонено');
-  //     }
-  //
-  //     // 1. Перевіряємо, чи наданий токен відповідає тому, що в базі
-  //     const isRefreshTokenMatching = await bcrypt.compare(
-  //         refreshToken,
-  //         user.hashedRefreshToken,
-  //     );
-  //
-  //     if (!isRefreshTokenMatching) {
-  //         throw new ForbiddenException('Доступ заборонено');
-  //     }
-  //
-  //     // 2. Якщо все добре, випускаємо нову пару токенів
-  //     const tokens = await this._createTokens(user);
-  //     // 3. Оновлюємо хеш в базі
-  //     await this.authUserService.updateRefreshToken(user.id, tokens.refreshToken);
-  //
-  //     return tokens;
-  // }
+  async refreshTokens(refreshToken: string): Promise<JwtTokensDto> {
+    try {
+      const refreshTokenSecret = this.configService.get<string>('JWT_REFRESH_SECRET');
+      const payload = await this.jwtService.verifyAsync(refreshToken, {
+        secret: refreshTokenSecret,
+      });
+      const userUuid = payload.sub;
+
+      const user = await this.authUserService.findUserByUuid(userUuid);
+      if (!user || !user.jwtRefreshToken?.jwtRefreshToken) {
+        throw new ForbiddenException('Доступ заборонено (відсутній токен)');
+      }
+
+      const isRefreshTokenMatching = await bcrypt.compare(
+        refreshToken,
+        user.jwtRefreshToken.jwtRefreshToken,
+      );
+
+      if (!isRefreshTokenMatching) {
+        throw new ForbiddenException('Доступ заборонено');
+      }
+
+      if (!user.active) {
+        throw new ForbiddenException('Акаунт не активовано');
+      }
+
+      const tokens = await this._createTokens(user);
+      const deletionTime = new Date();
+      deletionTime.setDate(deletionTime.getDate() + 7);
+
+      await this.authUserService.upsertRefreshToken(user.uuid, {
+        jwtRefreshToken: await this._hashJwtRefreshToken(tokens.refreshToken),
+        deletionTime,
+      });
+
+      return tokens;
+    } catch {
+      throw new ForbiddenException('Недійсний або прострочений refresh токен');
+    }
+  }
 
   private async _createTokens(user: AuthUser): Promise<JwtTokensDto> {
     const payload: TokenPayload = {

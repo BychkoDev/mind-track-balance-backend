@@ -1,12 +1,11 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { SeoObject } from './seo-object.entity';
 import { SeoObjectService } from './seo-object.service';
 import { SeoObjectRepository } from './seo-object.repository';
 import { SeoObjectController } from './seo-object.controller';
+import { CommonModule } from '@app/common';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([SeoObject])],
+  imports: [CommonModule],
   providers: [SeoObjectService, SeoObjectRepository],
   controllers: [SeoObjectController],
   exports: [SeoObjectModule],

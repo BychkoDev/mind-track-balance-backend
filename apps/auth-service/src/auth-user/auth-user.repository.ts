@@ -1,45 +1,67 @@
-import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
-import { Repository } from 'typeorm';
-import { Role } from '@app/common/enums/role.enum';
-import { AuthUser } from './auth-user.entity';
+import { PrismaService } from '@app/common';
+import { AuthUser, AuthUserJwtRefreshToken, Role } from '@prisma/client';
 
 @Injectable()
 export class AuthUserRepository {
-  constructor(
-    @InjectRepository(AuthUser)
-    private readonly authUserRepository: Repository<AuthUser>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async createUser(
     uuid: string,
     email: string,
     password: string,
     active: boolean,
-    serviceCodeUUID: string,
+    serviceCodeUUID: string | null,
     role: Role,
   ) {
-    return this.authUserRepository.create({
-      uuid,
-      email,
-      password,
-      active,
-      serviceCodeUUID,
-      role,
+    return this.prisma.authUser.create({
+      data: {
+        uuid,
+        email,
+        password,
+        active,
+        serviceCodeUUID,
+        role,
+        jwtRefreshToken: {
+          create: {}
+        }
+      },
+      include: {
+        jwtRefreshToken: true
+      }
     });
   }
 
-  async findOneByEmail(email: string): Promise<AuthUser | null> {
-    return await this.authUserRepository.findOne({
+  async findOneByEmail(email: string) {
+    return await this.prisma.authUser.findUnique({
       where: { email },
-      relations: ['jwtRefreshToken'],
+      include: { jwtRefreshToken: true },
     });
   }
 
-  async saveUser(user: AuthUser): Promise<AuthUser> {
-    return await this.authUserRepository.save(user);
+  async findOneByUuid(uuid: string) {
+    return await this.prisma.authUser.findUnique({
+      where: { uuid },
+      include: { jwtRefreshToken: true },
+    });
   }
-  // async rawSQLExample(): Promise<any> {
-  //     return this.authUserRepository.query('SELECT * FROM auth_users WHERE is_active = $1', [true]);
-  // }
+
+  async saveUser(uuid: string, data: Partial<AuthUser>): Promise<AuthUser> {
+    return await this.prisma.authUser.update({
+      where: { uuid },
+      data,
+    });
+  }
+
+  async upsertRefreshToken(userUuid: string, data: Omit<Partial<AuthUserJwtRefreshToken>, 'userUuid' | 'uuid'>) {
+    return await this.prisma.authUserJwtRefreshToken.upsert({
+      where: { userUuid },
+      update: data,
+      create: {
+        userUuid,
+        ...data,
+      },
+    });
+  }
 }
+

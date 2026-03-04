@@ -1,15 +1,8 @@
 import { Module } from '@nestjs/common';
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { ConfigModule } from '@nestjs/config';
 import { CommonModule } from '@app/common';
 import { JwtStrategyModule } from '@app/common/strategy/jwt-stratedy.module';
 import { PassportModule } from '@nestjs/passport';
-import { Page } from '../page/page.entity';
-import { Image } from '../public-image/image/image.entity';
-import { SeoObject } from '../seo/seo-object.entity';
-import { PageBlock } from '../page-block/page-block.entity';
-import { PageBlockTranslation } from '../page-block/page-block-translation.entity';
-import { IconImage } from '../public-image/icon/icon.entity';
 
 @Module({
   imports: [
@@ -24,28 +17,6 @@ import { IconImage } from '../public-image/icon/icon.entity';
           ? 'apps/public-content-service/.env.prod'
           : 'apps/public-content-service/.env.dev',
       // envFilePath: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev',
-    }),
-    TypeOrmModule.forRootAsync({
-      useFactory: (config: ConfigService) => {
-        return {
-          type: 'postgres',
-          host: config.get<string>('DB_HOST'),
-          port: config.get<number>('DB_PORT'),
-          username: config.get<string>('DB_USERNAME_PUBLIC'),
-          password: config.get<string>('DB_PASSWORD_PUBLIC'),
-          database: config.get<string>('DB_NAME_PUBLIC'),
-          entities: [
-            Page,
-            PageBlock,
-            PageBlockTranslation,
-            SeoObject,
-            IconImage,
-            Image,
-          ],
-          synchronize: true,
-        };
-      },
-      inject: [ConfigService],
     }),
   ],
 })

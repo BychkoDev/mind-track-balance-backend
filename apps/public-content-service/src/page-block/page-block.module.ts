@@ -1,13 +1,11 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { PageBlock } from './page-block.entity';
 import { PageBlockRepository } from './page-block.repository';
 import { PageBlockService } from './page-block.service';
 import { PageBlockController } from './page-block.controller';
-import { PageBlockTranslation } from './page-block-translation.entity';
+import { CommonModule } from '@app/common';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([PageBlock, PageBlockTranslation])],
+  imports: [CommonModule],
   providers: [PageBlockService, PageBlockRepository],
   controllers: [PageBlockController],
   exports: [BlockPagesModule],

@@ -1,14 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Image } from './image.entity';
-import { Repository } from 'typeorm';
+import { PrismaService } from '@app/common';
 
 @Injectable()
 export class ImageRepository {
-  constructor(
-    @InjectRepository(Image)
-    private readonly repository: Repository<Image>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   // async findByEmail(email: string): Promise<User  | null> {
   //     return this.adminUserRepository.findOne({ where: { email } });

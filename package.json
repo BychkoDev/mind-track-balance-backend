@@ -7,7 +7,6 @@
   "license": "UNLICENSED",
   "scripts": {
     "build:all": "concurrently \"nest build auth-service\" \"nest build user-service\" \"nest build public-content-service\" \"nest build media-service\"",
-
     "build:auth": "cross-env NODE_ENV=production nest build auth-service && tsc-alias -p apps/auth-service/tsconfig.build.json",
     "start:auth": "nest start auth-service --watch",
     "start:dev:auth": "nest start auth-service --watch",
@@ -20,12 +19,10 @@
     "start:user": "nest start user-service --watch",
     "start:dev:user": "nest start user-service --watch",
     "start:debug:user": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register apps/user-service/src/main.ts",
-
     "build:media": "nest build media-service",
     "start:media": "nest start media-service --watch",
     "start:dev:media": "nest start media-service --watch",
     "start:debug:media": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register apps/media-service/src/main.ts",
-
     "build:mind-track": "nest build mind-track-service",
     "start:mind-track": "nest start mind-track-service --watch",
     "start:dev:mind-track": "nest start mind-track-service --watch",
@@ -34,34 +31,6 @@
     "start:attention": "nest start attention-service --watch",
     "start:dev:attention": "nest start attention-service --watch",
     "start:debug:attention": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register apps/attention-service/src/main.ts",
-
-    "typeorm:auth": "node --require ts-node/register --require tsconfig-paths/register ./node_modules/typeorm/cli.js -d apps/auth-service/src/ormconfig.ts",
-    "typeorm:user": "node --require ts-node/register --require tsconfig-paths/register ./node_modules/typeorm/cli.js -d apps/user-service/src/ormconfig.ts",
-    "typeorm:public": "node --require ts-node/register --require tsconfig-paths/register ./node_modules/typeorm/cli.js -d apps/public-content-service/src/ormconfig.ts",
-    "typeorm:attention": "node --require ts-node/register --require tsconfig-paths/register ./node_modules/typeorm/cli.js -d apps/attention-service/src/ormconfig.ts",
-
-    "auth:migration:create": "npm run typeorm:auth -- migration:create apps/auth-service/src/migrations/Init",
-    "auth:migration:generate": "npm run typeorm:auth -- migration:generate apps/auth-service/src/migrations/Auto",
-    "auth:migration:run": "npm run typeorm:auth -- migration:run",
-    "auth:migration:revert": "npm run typeorm:auth -- migration:revert",
-
-    "user:migration:create": "npm run typeorm:user -- migration:create apps/user-service/src/migrations/Init",
-    "user:migration:generate": "npm run typeorm:user -- migration:generate apps/user-service/src/migrations/Auto",
-    "user:migration:run": "npm run typeorm:user -- migration:run",
-    "user:migration:revert": "npm run typeorm:user -- migration:revert",
-
-    "public:migration:create": "npm run typeorm:public -- migration:create apps/public-content-service/src/migrations/Init",
-    "public:migration:generate": "npm run typeorm:public -- migration:generate apps/public-content-service/src/migrations/Auto",
-    "public:migration:run": "npm run typeorm:public -- migration:run",
-    "public:migration:revert": "npm run typeorm:public -- migration:revert",
-
-    "attention:migration:create": "npm run typeorm:attention -- migration:create apps/attention-service/src/migrations/Init",
-    "attention:migration:generate": "npm run typeorm:attention -- migration:generate apps/attention-service/src/migrations/Auto",
-    "attention:migration:run": "npm run typeorm:attention -- migration:run",
-    "attention:migration:revert": "npm run typeorm:attention -- migration:revert",
-
-    "migrations:run:all": "npm run user:migration:run && npm run auth:migration:run && npm run public:migration:run && npm run attention:migration:run",
-    "migrations:revert:all": "npm run attention:migration:revert && npm run public:migration:revert && npm run auth:migration:revert && npm run user:migration:revert",
     "format": "prettier --write \"{apps,libs,test}/**/*.ts\"",
     "lint": "eslint \"{apps,libs,src,test}/**/*.ts\" --fix --cache --cache-location .eslintcache",
     "lint:fast": "cross-env ESLINT_NO_TYPE_CHECK=1 eslint \"{apps,libs,src,test}/**/*.ts\" --fix --cache --cache-location .eslintcache",
@@ -84,7 +53,6 @@
     "@nestjs/microservices": "^11.1.8",
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.8",
-    "@nestjs/typeorm": "^11.0.0",
     "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
     "class-transformer": "^0.5.1",
@@ -102,7 +70,6 @@
     "rxjs": "^7.8.2",
     "sharp": "^0.34.4",
     "ts-mapper": "^1.2.4",
-    "typeorm": "^0.3.27",
     "uuid": "^13.0.0"
   },
   "devDependencies": {
@@ -111,6 +78,7 @@
     "@nestjs/cli": "^11.0.10",
     "@nestjs/schematics": "^11.0.9",
     "@nestjs/testing": "^11.1.8",
+    "@prisma/client": "6.4.1",
     "@types/express": "^5.0.4",
     "@types/jest": "^30.0.0",
     "@types/multer": "^2.0.0",
@@ -125,6 +93,7 @@
     "globals": "^16.4.0",
     "jest": "^30.2.0",
     "prettier": "^3.6.2",
+    "prisma": "6.4.1",
     "source-map-support": "^0.5.21",
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.5",

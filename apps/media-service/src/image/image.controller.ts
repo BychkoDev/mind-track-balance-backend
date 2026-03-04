@@ -43,10 +43,9 @@ export class ImageController {
         ],
       }),
     )
-      file: Express.Multer.File,
+    file: Express.Multer.File,
     @Body() body: UploadImageDto,
-  ) {
-  }
+  ) {}
 
   // @GetMapping("/{storageId}/audio/{audioFileName:.+}")
   // public ResponseEntity<Resource> getAudioFileFromStorage(@PathVariable Long storageId, @PathVariable String audioFileName) {

@@ -264,7 +264,23 @@ services:
       - ./db/init:/docker-entrypoint-initdb.d:ro
     networks:
       - cloud-network
-
+  kafka:
+    image: apache/kafka:3.7.0  # Вказуємо конкретну стабільну версію
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      # Налаштування для KRaft (без Zookeeper)
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
+      # Генерація Cluster ID (необхідно для KRaft)
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
 networks:
   cloud-network:

@@ -1,8 +1,4 @@
-import {
-  Controller,
-
-} from '@nestjs/common';
-
+import { Controller } from '@nestjs/common';
 
 @Controller('/api/v1/seo')
 export class SeoObjectController {

@@ -1,0 +1,309 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+enum Role {
+  USER  @map("user")
+  ADMIN @map("admin")
+}
+
+enum UserGender {
+  MALE   @map("male")
+  FEMALE @map("female")
+  OTHER  @map("other")
+}
+
+model AuthUser {
+  uuid            String   @id @default(uuid())
+  email           String   @unique
+  password        String
+  active          Boolean  @default(false)
+  serviceCode     Int?     @map("service_code")
+  serviceCodeUUID String?  @map("service_code_uuid") @db.Uuid
+  role            Role     @default(USER)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  jwtRefreshToken AuthUserJwtRefreshToken?
+
+  @@map("auth_users")
+}
+
+model AuthUserJwtRefreshToken {
+  uuid            String    @id @default(uuid())
+  jwtRefreshToken String?   @map("jwt_refresh_token")
+  deviceId        String?   @map("device_id")
+  userUuid        String    @unique @map("user_uuid")
+  user            AuthUser  @relation(fields: [userUuid], references: [uuid], onDelete: Cascade)
+  deletionTime    DateTime? @map("deletion_time") @db.Timestamp()
+
+  @@map("auth_user_jwt_refresh_tokens")
+}
+
+model User {
+  uuid      String   @id @default(uuid())
+  email     String
+  firstname String?
+  surname   String?
+  role      Role     @default(USER)
+  active    Boolean
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  login             String
+  about             String     @db.VarChar(300)
+  vip               Boolean
+  vipExpirationDate DateTime   @map("vip_expiration_date") @db.Date
+  gender            UserGender @default(OTHER) @map("user_gender")
+  userIp            String     @map("user_ip")
+  lastVisit         DateTime?  @map("last_visit")
+
+  @@map("users")
+}
+
+model AdminUser {
+  uuid      String   @id @default(uuid())
+  email     String
+  firstname String?
+  surname   String?
+  role      Role     @default(USER)
+  active    Boolean
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("admins")
+}
+
+model RsaKey {
+  uuid          String    @id @default(uuid())
+  publicKey     String    @map("public_key")
+  privateKey    String    @map("private_key")
+  revoked       Boolean   @default(false)
+  dateOfRevoked DateTime? @map("date_of_revoked") @db.Timestamp()
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp()
+
+  @@map("rsa_keys")
+}
+
+enum ImageFormat {
+  jpeg
+  png
+  webp
+  svg
+}
+
+enum ImageVariantKind {
+  original
+  thumb
+  web
+  userAvatar
+}
+
+enum Locale {
+  en
+  uk
+}
+
+enum MotionVariant {
+  soft
+  float
+  slideInLeft
+  slideInRight
+  zoomIn
+  none
+}
+
+enum Orientation {
+  horizontal
+  vertical
+}
+
+enum PageSection {
+  hero
+  features
+  stats
+  testimonials
+  footer
+}
+
+enum PageType {
+  simple
+  multiplex
+}
+
+enum Position {
+  main
+  badgeTop
+  badgeBottom
+}
+
+enum SlotArea {
+  left
+  right
+  center
+  grid
+  columns
+}
+
+enum UiColorToken {
+  default
+  purple
+  blue
+  teal
+  green
+  yellow
+  orange
+  pink
+  red
+  slate
+}
+
+enum IconKey {
+  messageCircle
+  trendingUp
+  instagram
+  linkedin
+  sparkles
+  twitter
+  shied
+  smile
+  heart
+  users
+  quote
+  pause
+  brain
+  clock
+  mail
+  moon
+  sun
+}
+
+model MediaImage {
+  uuid      String         @id @default(uuid())
+  createdAt DateTime       @default(now())
+  variants  MediaVariant[]
+
+  @@map("images")
+}
+
+model MediaVariant {
+  uuid      String           @id @default(uuid())
+  imageUuid String           @map("image_uuid")
+  image     MediaImage       @relation(fields: [imageUuid], references: [uuid], onDelete: Cascade)
+  bucket    String           @db.VarChar(128)
+  imageName String           @map("image_name") @db.VarChar(512)
+  prefix    String?          @db.VarChar(256)
+  kind      ImageVariantKind
+  format    ImageFormat
+  mimeType  String           @map("mime_type") @db.VarChar(64)
+  width     Int?
+  height    Int?
+  sizeBytes BigInt?          @map("size_bytes")
+  etag      String?          @db.VarChar(128)
+  profile   String?          @db.VarChar(64)
+
+  @@unique([bucket, imageName], map: "uniq_bucket_key")
+  @@index([kind], map: "idx_variant_kind")
+  @@index([imageUuid], map: "idx_variant_image")
+  @@map("image_variants")
+}
+
+model Page {
+  uuid                 String      @id @default(uuid())
+  name                 String?     @unique
+  url                  String      @unique
+  inMenu               Boolean     @default(false)
+  inHeaderMenu         Boolean     @default(false)
+  createdAt            DateTime    @default(now()) @db.Timestamptz
+  updatedAt            DateTime    @updatedAt @db.Timestamptz
+  seoObjectTranslation SeoObject[]
+  blocks               PageBlock[]
+
+  @@index([inMenu], map: "idx_pages_in_menu")
+  @@index([inHeaderMenu], map: "idx_pages_in_header_menu")
+  @@map("pages")
+}
+
+model PageBlock {
+  uuid          String        @id @default(uuid())
+  sortOrder     Int           @default(0)
+  parentId      String?       @map("parent_id")
+  parent        PageBlock?    @relation("BlockChildren", fields: [parentId], references: [uuid], onDelete: Cascade)
+  children      PageBlock[]   @relation("BlockChildren")
+  pageUuid      String        @map("page_id") // Was mistakenly set as page_id in TypeORM but referencing UUID
+  page          Page          @relation(fields: [pageUuid], references: [uuid], onDelete: Cascade)
+  orientation   Orientation   @default(horizontal)
+  motionVariant MotionVariant @default(none)
+  color         UiColorToken  @default(default)
+  section       PageSection?
+  area          SlotArea?
+  createdAt     DateTime      @default(now()) @db.Timestamptz
+  updatedAt     DateTime      @updatedAt @db.Timestamptz
+
+  images       PageImage[]
+  iconImage    IconImage?
+  translations PageBlockTranslation[]
+
+  @@index([sortOrder])
+  @@index([parentId])
+  @@index([pageUuid])
+  @@index([pageUuid, section, area, sortOrder], map: "idx_page_section_area_sort")
+  @@map("page_blocks")
+}
+
+model PageBlockTranslation {
+  id               String    @id @default(uuid())
+  blockUuid        String    @map("block_uuid")
+  block            PageBlock @relation(fields: [blockUuid], references: [uuid], onDelete: Cascade)
+  locale           Locale
+  name             String?   @db.VarChar(80)
+  shortDescription String?   @db.VarChar(400)
+  description      String?
+
+  @@unique([blockUuid, locale])
+  @@map("page_block_translations")
+}
+
+model IconImage {
+  uuid          String        @id @default(uuid())
+  iconKey       IconKey       @map("icon_key")
+  blockUuid     String        @unique @map("block_id")
+  block         PageBlock     @relation(fields: [blockUuid], references: [uuid], onDelete: Cascade)
+  widthPx       Int           @default(0)
+  heightPx      Int           @default(0)
+  motionVariant MotionVariant @default(none)
+  position      Position      @default(main)
+  color         UiColorToken  @default(default)
+
+  @@map("icon_images")
+}
+
+model PageImage {
+  uuid          String        @id
+  imageName     String
+  bucket        String
+  blockUuid     String        @map("block_id")
+  block         PageBlock     @relation(fields: [blockUuid], references: [uuid], onDelete: Cascade)
+  widthPx       Int           @default(0)
+  heightPx      Int           @default(0)
+  motionVariant MotionVariant @default(none)
+  position      Position      @default(main)
+  color         UiColorToken  @default(default)
+
+  @@map("page_images") // TypeORM previously had 'images' here but it conflicts with MediaImage. Assuming this was an oversight since both would clash in PostgreSQL 'public' schema
+}
+
+model SeoObject {
+  uuid               String @id @default(uuid())
+  h1                 String
+  htmlTagTitle       String
+  htmlTagDescription String @db.VarChar(360)
+  pageUrl            String @map("page_url")
+  page               Page   @relation(fields: [pageUrl], references: [url], onDelete: Cascade)
+  locale             Locale
+
+  @@unique([pageUrl, locale], map: "uniq_seo_page_locale")
+  @@map("seo_objects")
+}

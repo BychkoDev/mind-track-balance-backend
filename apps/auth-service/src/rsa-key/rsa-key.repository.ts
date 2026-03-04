@@ -1,19 +1,15 @@
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
 import { Injectable } from '@nestjs/common';
-import { RsaKey } from './rsa-key.entity';
+import { PrismaService } from '@app/common';
+import { RsaKey } from '@prisma/client';
 
 @Injectable()
 export class RsaKeyRepository {
-  constructor(
-    @InjectRepository(RsaKey)
-    private readonly rsaKeyRepository: Repository<RsaKey>,
-  ) {}
+  constructor(private readonly prisma: PrismaService) {}
 
   async findLastRsaKey(): Promise<RsaKey | null> {
-    return await this.rsaKeyRepository.findOne({
+    return await this.prisma.rsaKey.findFirst({
       where: { revoked: false },
-      order: { createdAt: 'DESC' },
+      orderBy: { createdAt: 'desc' },
     });
   }
 
@@ -23,15 +19,20 @@ export class RsaKeyRepository {
     revoked: boolean,
     dateOfRevoked: Date,
   ): Promise<RsaKey> {
-    return this.rsaKeyRepository.create({
-      publicKey,
-      privateKey,
-      revoked,
-      dateOfRevoked,
+    return this.prisma.rsaKey.create({
+      data: {
+        publicKey,
+        privateKey,
+        revoked,
+        dateOfRevoked,
+      },
     });
   }
 
-  async saveRsaKey(rsaKey: RsaKey): Promise<RsaKey> {
-    return await this.rsaKeyRepository.save(rsaKey);
+  async updateRsaKey(uuid: string, data: Partial<RsaKey>): Promise<RsaKey> {
+    return await this.prisma.rsaKey.update({
+      where: { uuid },
+      data,
+    });
   }
 }

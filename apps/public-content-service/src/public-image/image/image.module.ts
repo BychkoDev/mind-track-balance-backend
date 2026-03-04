@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
+import { CommonModule } from '@app/common';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Image])],
+  imports: [CommonModule],
   // providers: [PublicImageService, PublicImageRepository],
   // controllers: [CategoryController],
   exports: [ImageModule],
