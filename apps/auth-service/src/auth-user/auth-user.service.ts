@@ -32,6 +32,7 @@ export class AuthUserService {
     // 'user_created' - це назва топіка/події
     // payload - дані, які ми відправляємо
     this.kafkaClient.emit('user_created', {
+      uuid: user.uuid,
       email: user.email,
       name: signupDto.name,
       serviceCodeUUID: user.serviceCodeUUID,

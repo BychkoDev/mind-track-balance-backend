@@ -15,7 +15,9 @@ import { JwtStrategyModule } from '@app/common/strategy/jwt-stratedy.module';
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath:
-        process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev',
+        process.env.NODE_ENV === 'production'
+          ? 'apps/user-service/.env.prod'
+          : 'apps/user-service/.env.dev',
     }),
   ],
   providers: [

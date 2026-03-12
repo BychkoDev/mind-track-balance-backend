@@ -4,6 +4,7 @@ import { PassportModule } from '@nestjs/passport';
 import { AuthModule } from '../auth/auth.module';
 import { AuthUserModule } from '../auth-user/auth-user.module';
 import { RsaKeyModule } from '../rsa-key/rsa-key.module';
+import { MailModule } from '../mail/mail.module';
 
 // const envFile = process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev';
 // console.log("dkflgkfd dflgk;fdgl fdg^ -->> " + envFile)
@@ -20,6 +21,7 @@ import { RsaKeyModule } from '../rsa-key/rsa-key.module';
     RsaKeyModule,
     AuthUserModule,
     PassportModule,
+    MailModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath:

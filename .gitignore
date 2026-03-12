@@ -61,7 +61,10 @@ jest-global-setup.js
 jspm_packages/
 
 # Project Documentation
-technical plan MindTrack Balance.pdf
+*.pdf
+*.docx
+*.txt
+
 
 **/migrations/*
 pgdata/

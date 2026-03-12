@@ -3,6 +3,7 @@ import { UserRepository } from './user.repository';
 import { ClientKafka, EventPattern, Payload } from '@nestjs/microservices';
 import { UserCreatedEvent } from './events/user-create.event';
 import { KAFKA_SERVICE } from '../../kafka/user-kafka.module';
+import { UpdateSettingsDto } from './dto/update-settings.dto';
 
 @Injectable()
 export class UserService {
@@ -18,10 +19,19 @@ export class UserService {
       data,
     );
 
-    // Тут ваша логіка:
-    // - Створити профіль для нового користувача
-    // - Записати дані в свою базу
-    // - тощо
+    try {
+      await this.repository.createUserProfile({
+        uuid: data.uuid,
+        email: data.email,
+        firstname: data.name,
+      });
+      console.log(`✅ Profile created successfully for ${data.email}`);
+    } catch (error) {
+      console.error(
+        `❌ Failed to create profile for ${data.email}`,
+        String(error),
+      );
+    }
 
     this.kafkaClient.emit('send_welcome_mail', {
       to: data.email,
@@ -35,4 +45,11 @@ export class UserService {
   //     // ... якась логіка
   //     return user;
   // }
+
+  async updateSettings(uuid: string, dto: UpdateSettingsDto) {
+    return await this.repository.updateSettings(uuid, {
+      timezone: dto.timezone,
+      locale: dto.locale,
+    });
+  }
 }

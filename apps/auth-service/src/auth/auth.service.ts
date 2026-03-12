@@ -7,7 +7,9 @@ import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
 import { JwtTokensDto } from './dto/jwt-tokens.dto';
 import { AuthUser } from '@prisma/client';
-import { ForbiddenException } from '@nestjs/common';
+import { ForbiddenException, Inject, OnModuleInit } from '@nestjs/common';
+import { CACHE_MANAGER } from '@nestjs/cache-manager';
+import { Cache } from 'cache-manager';
 
 export interface TokenPayload {
   sub: string;
@@ -15,14 +17,28 @@ export interface TokenPayload {
 }
 
 @Injectable()
-export class AuthService {
+export class AuthService implements OnModuleInit {
   private readonly saltRounds = 12;
 
   constructor(
     private readonly authUserService: AuthUserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    @Inject(CACHE_MANAGER) private cacheManager: Cache,
   ) {}
+
+  async onModuleInit() {
+    console.log('⏳ Connecting to REDIS...');
+    try {
+      await this.cacheManager.set('health', 'ok', 5000);
+      const val = await this.cacheManager.get('health');
+      if (val !== 'ok') throw new Error('Redis value mismatch');
+      console.log('✅ REDIS Connected successfully');
+    } catch (e) {
+      console.error('❌ Failed to connect to REDIS Cache', e);
+      throw e;
+    }
+  }
 
   async signup(signupDto: SignupDto): Promise<void> {
     return this.authUserService.sighup(signupDto);
@@ -36,24 +52,31 @@ export class AuthService {
     const deletionTime = new Date();
     deletionTime.setDate(deletionTime.getDate() + 7);
     const tokens = await this._createTokens(user);
-    
+    const hashrt = await this._hashJwtRefreshToken(tokens.refreshToken);
+
+    // Save to Postgres
     await this.authUserService.upsertRefreshToken(user.uuid, {
       deletionTime: deletionTime,
       deviceId: loginDto.deviceId,
-      jwtRefreshToken: await this._hashJwtRefreshToken(tokens.refreshToken),
+      jwtRefreshToken: hashrt,
     });
+
+    // Save to Redis (ttl in milliseconds, 7 days)
+    const ttl = 7 * 24 * 60 * 60 * 1000;
+    await this.cacheManager.set(`refresh_token:${user.uuid}`, hashrt, ttl);
 
     return tokens;
   }
 
   /**
-   * Вихід з системи: видалення refresh токена з бази.
+   * Вихід з системи: видалення refresh токена з бази та кешу.
    */
   async logout(userUuid: string): Promise<void> {
     await this.authUserService.upsertRefreshToken(userUuid, {
       jwtRefreshToken: null,
       deletionTime: new Date(),
     });
+    await this.cacheManager.del(`refresh_token:${userUuid}`);
   }
 
   /**
@@ -64,35 +87,52 @@ export class AuthService {
       const refreshTokenSecret = this.configService.get<string>('JWT_REFRESH_SECRET');
       const payload = await this.jwtService.verifyAsync(refreshToken, {
         secret: refreshTokenSecret,
-      });
+      }) as { sub: string };
       const userUuid = payload.sub;
 
-      const user = await this.authUserService.findUserByUuid(userUuid);
-      if (!user || !user.jwtRefreshToken?.jwtRefreshToken) {
-        throw new ForbiddenException('Доступ заборонено (відсутній токен)');
+      let storedHash: string | undefined | null = await this.cacheManager.get<string>(`refresh_token:${userUuid}`);
+
+      let user: (AuthUser & { jwtRefreshToken?: { jwtRefreshToken: string | null } }) | null = null;
+      if (!storedHash) {
+        // Fallback to PostgreSQL
+        user = await this.authUserService.findUserByUuid(userUuid) as any;
+        if (!user || !user.jwtRefreshToken?.jwtRefreshToken) {
+          throw new ForbiddenException('Доступ заборонено (відсутній токен)');
+        }
+        storedHash = user.jwtRefreshToken.jwtRefreshToken;
       }
 
       const isRefreshTokenMatching = await bcrypt.compare(
         refreshToken,
-        user.jwtRefreshToken.jwtRefreshToken,
+        storedHash as string,
       );
 
       if (!isRefreshTokenMatching) {
         throw new ForbiddenException('Доступ заборонено');
       }
 
-      if (!user.active) {
-        throw new ForbiddenException('Акаунт не активовано');
+      // Check active status by querying the user if we haven't already
+      if (!user) {
+        user = await this.authUserService.findUserByUuid(userUuid) as AuthUser;
+      }
+
+      if (!user || !user.active) {
+        throw new ForbiddenException('Акаунт не активовано або не існує');
       }
 
       const tokens = await this._createTokens(user);
       const deletionTime = new Date();
       deletionTime.setDate(deletionTime.getDate() + 7);
 
+      const hashrt = await this._hashJwtRefreshToken(tokens.refreshToken);
+
       await this.authUserService.upsertRefreshToken(user.uuid, {
-        jwtRefreshToken: await this._hashJwtRefreshToken(tokens.refreshToken),
+        jwtRefreshToken: hashrt,
         deletionTime,
       });
+
+      const ttl = 7 * 24 * 60 * 60 * 1000;
+      await this.cacheManager.set(`refresh_token:${user.uuid}`, hashrt, ttl);
 
       return tokens;
     } catch {
@@ -113,14 +153,18 @@ export class AuthService {
         'JWT_REFRESH_SECRET is missing in the environment configuration!',
       );
     }
-    const expiration = this.configService.get<string>(
+    const refreshExpiration = this.configService.get<string>(
       'JWT_REFRESH_EXPIRATION',
       '7d',
+    );
+    const accessExpiration = this.configService.get<string>(
+      'JWT_ACCESS_EXPIRATION',
+      '15m',
     );
     const [accessToken, refreshToken] = await Promise.all([
       this.jwtService.signAsync(payload, {
         algorithm: 'RS256',
-        expiresIn: expiration,
+        expiresIn: accessExpiration,
         audience: ['user-service', 'notification-service'], // можна масив
         issuer: 'auth-service',
       }),
@@ -129,7 +173,7 @@ export class AuthService {
         {
           secret: refreshTokenSecret,
           algorithm: 'HS256',
-          expiresIn: expiration,
+          expiresIn: refreshExpiration,
         },
       ),
     ]);

@@ -1,0 +1,11 @@
+import { Module } from '@nestjs/common';
+import { AiService } from './ai.service';
+import { ConfigModule } from '@nestjs/config';
+import { CommonModule } from '@app/common';
+
+@Module({
+  imports: [ConfigModule, CommonModule],
+  providers: [AiService],
+  exports: [AiService],
+})
+export class AiModule {}

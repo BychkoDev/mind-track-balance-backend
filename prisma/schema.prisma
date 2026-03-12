@@ -60,6 +60,12 @@ model User {
   gender            UserGender @default(OTHER) @map("user_gender")
   userIp            String     @map("user_ip")
   lastVisit         DateTime?  @map("last_visit")
+  timezone          String     @default("Europe/Kiev")
+  locale            Locale     @default(uk)
+
+  mindTrackEntries MindTrackEntry[]
+  mindTrackTags    MindTrackTag[]
+  mindTrackAdvices MindTrackAdvice[]
 
   @@map("users")
 }
@@ -306,4 +312,46 @@ model SeoObject {
 
   @@unique([pageUrl, locale], map: "uniq_seo_page_locale")
   @@map("seo_objects")
+}
+
+model MindTrackEntry {
+  uuid        String   @id @default(uuid())
+  userUuid    String   @map("user_uuid")
+  user        User     @relation(fields: [userUuid], references: [uuid], onDelete: Cascade)
+  moodScore   Int // e.g. 1 to 5, or 1 to 10
+  text        String?  @db.Text
+  aiSentiment String?  @map("ai_sentiment") // Results from AI analysis
+  aiTopics    String[] @map("ai_topics") // e.g. ["work", "anxiety"]
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  tags MindTrackTag[]
+
+  @@index([userUuid, createdAt])
+  @@map("mind_track_entries")
+}
+
+model MindTrackTag {
+  uuid     String @id @default(uuid())
+  name     String
+  userUuid String @map("user_uuid") // User's custom tags
+  user     User   @relation(fields: [userUuid], references: [uuid], onDelete: Cascade)
+
+  entries MindTrackEntry[]
+
+  @@unique([userUuid, name])
+  @@map("mind_track_tags")
+}
+
+model MindTrackAdvice {
+  uuid          String   @id @default(uuid())
+  userUuid      String   @map("user_uuid")
+  user          User     @relation(fields: [userUuid], references: [uuid], onDelete: Cascade)
+  content       String   @db.Text
+  relatedTopics String[] @map("related_topics") // e.g. ["anxiety", "work"]
+  isRead        Boolean  @default(false) @map("is_read")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("mind_track_advices")
+  @@index([userUuid, createdAt])
 }
