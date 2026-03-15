@@ -7,6 +7,8 @@
   "license": "UNLICENSED",
   "scripts": {
     "build:all": "concurrently \"nest build auth-service\" \"nest build user-service\" \"nest build public-content-service\" \"nest build media-service\"",
+    "prisma:migrate:auth": "cross-env NODE_ENV=development prisma migrate dev --schema=packages/auth-db/prisma/schema.prisma",
+    "seed:auth": "cross-env NODE_ENV=development ts-node packages/auth-db/prisma/seed.ts",
     "build:auth": "cross-env NODE_ENV=production nest build auth-service && tsc-alias -p apps/auth-service/tsconfig.build.json",
     "start:auth": "nest start auth-service --watch",
     "start:dev:auth": "nest start auth-service --watch",

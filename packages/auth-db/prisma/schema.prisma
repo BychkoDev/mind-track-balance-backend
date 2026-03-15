@@ -1,0 +1,55 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER  @map("user")
+  ADMIN @map("admin")
+}
+
+model AuthUser {
+  uuid            String   @id @default(uuid())
+  email           String   @unique
+  password        String
+  active          Boolean  @default(false)
+  serviceCode     Int?     @map("service_code")
+  serviceCodeUUID String?  @map("service_code_uuid") @db.Uuid
+  role            Role     @default(USER)
+  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp()
+
+  jwtRefreshToken AuthUserJwtRefreshToken?
+
+  @@map("auth_users")
+}
+
+model AuthUserJwtRefreshToken {
+  uuid            String    @id @default(uuid())
+  jwtRefreshToken String?   @map("jwt_refresh_token")
+  deviceId        String?   @map("device_id")
+  userUuid        String    @unique @map("user_uuid")
+  user            AuthUser  @relation(fields: [userUuid], references: [uuid], onDelete: Cascade)
+  deletionTime    DateTime? @map("deletion_time") @db.Timestamp()
+
+  @@map("auth_user_jwt_refresh_tokens")
+}
+
+model RsaKey {
+  uuid          String    @id @default(uuid())
+  publicKey     String    @map("public_key")
+  privateKey    String    @map("private_key")
+  revoked       Boolean   @default(false)
+  dateOfRevoked DateTime? @map("date_of_revoked") @db.Timestamp()
+  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp()
+
+  @@map("rsa_keys")
+}
