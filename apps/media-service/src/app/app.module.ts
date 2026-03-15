@@ -14,8 +14,7 @@ import { CommonModule } from '@app/common';
     CommonModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath:
-        process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev',
+      envFilePath: process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev',
     }),
     MulterModule.register({
       limits: { fileSize: 10 * 1024 * 1024, files: 1 },

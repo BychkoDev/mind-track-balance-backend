@@ -7,7 +7,6 @@ export class AdminUserService {
 
   async someMethod(email: string) {
     const user = await this.repository.findByEmail(email);
-    // ... якась логіка
     return user;
   }
 }

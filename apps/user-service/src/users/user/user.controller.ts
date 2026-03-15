@@ -1,13 +1,4 @@
-import {
-  Controller,
-  Get,
-  Patch,
-  Req,
-  Body,
-  UseGuards,
-  UsePipes,
-  ValidationPipe,
-} from '@nestjs/common';
+import { Controller, Get, Patch, Req, Body, UseGuards, UsePipes, ValidationPipe } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '@app/common/guards/roles.guard';
 import { Role } from '@app/common/enums/role.enum';
@@ -32,26 +23,17 @@ export class UserController {
   @Roles(Role.User, Role.Admin)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  async updateSettings(
-    @Req() req: { user: { sub: string } },
-    @Body() updateSettingsDto: UpdateSettingsDto,
-  ) {
+  async updateSettings(@Req() req: { user: { sub: string } }, @Body() updateSettingsDto: UpdateSettingsDto) {
     const userUuid = req.user.sub;
     return await this.userService.updateSettings(userUuid, updateSettingsDto);
   }
 
   @EventPattern('user_created')
   async handleUserCreated(@Payload() data: UserCreatedEvent) {
-    console.log(
-      '!!!!!!!!!!!!!!!!!!!!!!!!! ------ Received a new user_created event:',
-      data,
-    );
+    console.log('!!!!!!!!!!!!!!!!!!!!!!!!! ------ Received a new user_created event:', data);
 
-    // Тут ваша логіка:
-    // - Створити профіль для нового користувача
-    // - Записати дані в свою базу
-    console.log(`➡️ Creating profile for user ${data.email} (${data.uuid})`);
-    
+    console.log(`Creating profile for user ${data.email} (${data.uuid})`);
+
     await this.userService.handleUserCreated(data);
   }
 }

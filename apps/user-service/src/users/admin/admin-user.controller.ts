@@ -8,7 +8,7 @@ import { Roles } from '@app/common/decorators/roles.decorator';
 @Controller('/api/v1/admin')
 export class AdminUserController {
   @Get('me')
-  @Roles(Role.Admin) // Доступ для будь-якого залогіненого юзера
+  @Roles(Role.Admin)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   getProfile() {
     return { message: 'This is your profile data from User Service!' };
@@ -18,9 +18,6 @@ export class AdminUserController {
   // handleUserCreated(@Payload() data: UserCreatedEvent) {
   //     console.log('!!!!!!!!!!!!!!!!!!!!!!!!! ------ Received a new user_created event:', data);
   //
-  //     // Тут ваша логіка:
-  //     // - Створити профіль для нового користувача
-  //     // - Записати дані в свою базу
-  //     // - тощо
+
   // }
 }

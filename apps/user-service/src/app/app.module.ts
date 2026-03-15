@@ -11,9 +11,7 @@ import { AdminUserModule } from '../users/admin/admin-user.module';
 import { join } from 'path';
 
 const envFilePath =
-  process.env.NODE_ENV === 'production'
-    ? join(process.cwd(), '.env.prod')
-    : join(process.cwd(), '.env.dev');
+  process.env.NODE_ENV === 'production' ? join(process.cwd(), '.env.prod') : join(process.cwd(), '.env.dev');
 
 @Module({
   imports: [
@@ -26,11 +24,9 @@ const envFilePath =
     JwtStrategyModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath
+      envFilePath,
     }),
   ],
-  providers: [
-    JwtStrategy,
-  ],
+  providers: [JwtStrategy],
 })
 export class AppModule {}

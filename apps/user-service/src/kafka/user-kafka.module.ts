@@ -15,9 +15,7 @@ export const KAFKA_SERVICE = 'USER_KAFKA_SERVICE';
           options: {
             client: {
               clientId: 'user-service',
-              brokers: configService
-                .getOrThrow<string>('KAFKA_BROKERS')
-                .split(','),
+              brokers: configService.getOrThrow<string>('KAFKA_BROKERS').split(','),
               retry: {
                 initialRetryTime: 300,
                 retries: 8,
