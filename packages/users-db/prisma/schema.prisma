@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER  @map("user")
+  ADMIN @map("admin")
+}
+
+enum UserGender {
+  MALE   @map("male")
+  FEMALE @map("female")
+  OTHER  @map("other")
+}
+
+enum Locale {
+  en
+  uk
+}
+
+model User {
+  uuid      String   @id @default(uuid())
+  email     String   @unique
+  firstname String?
+  surname   String?
+  role      Role     @default(USER)
+  active    Boolean
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  login             String
+  about             String     @db.VarChar(300)
+  vip               Boolean
+  vipExpirationDate DateTime   @map("vip_expiration_date") @db.Date
+  gender            UserGender @default(OTHER) @map("user_gender")
+  userIp            String     @map("user_ip")
+  lastVisit         DateTime?  @map("last_visit")
+  timezone          String     @default("Europe/Kiev")
+  locale            Locale     @default(uk)
+  @@map("users")
+}
+
+model AdminUser {
+  uuid      String   @id @default(uuid())
+  email     String   @unique
+  firstname String?
+  surname   String?
+  role      Role     @default(USER)
+  active    Boolean
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@map("admins")
+}

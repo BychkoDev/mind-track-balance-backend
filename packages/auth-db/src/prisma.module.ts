@@ -6,4 +6,4 @@ import { AuthPrismaService } from './prisma.service';
   providers: [AuthPrismaService],
   exports: [AuthPrismaService],
 })
-export class PrismaModule {}
+export class AuthPrismaModule {}

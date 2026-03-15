@@ -5,7 +5,7 @@ import { AuthModule } from '../auth/auth.module';
 import { AuthUserModule } from '../auth-user/auth-user.module';
 import { RsaKeyModule } from '../rsa-key/rsa-key.module';
 import { MailModule } from '../mail/mail.module';
-import { PrismaModule } from '@app/prisma-auth';
+import { AuthPrismaModule } from '@app/prisma-auth';
 import { join } from 'path';
 
 const envFilePath =
@@ -15,7 +15,7 @@ const envFilePath =
 
 @Module({
   imports: [
-    PrismaModule,
+    AuthPrismaModule,
     AuthModule,
     RsaKeyModule,
     AuthUserModule,

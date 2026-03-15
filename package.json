@@ -17,6 +17,8 @@
     "start:public": "nest start public-content-service --watch",
     "start:dev:public": "nest start public-content-service --watch",
     "start:debug:public": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register apps/public-content-service/src/main.ts",
+    "prisma:migrate:users": "cross-env NODE_ENV=development prisma migrate dev --schema=packages/users-db/prisma/schema.prisma",
+    "seed:users": "cross-env NODE_ENV=development ts-node packages/users-db/prisma/seed.ts",
     "build:user": "nest build user-service",
     "start:user": "nest start user-service --watch",
     "start:dev:user": "nest start user-service --watch",

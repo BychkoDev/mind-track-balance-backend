@@ -5,23 +5,28 @@ import { CommonModule } from '@app/common';
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from '@app/common/strategy/jwt.strategy';
 import { JwtStrategyModule } from '@app/common/strategy/jwt-stratedy.module';
+import { UsersPrismaModule } from '@app/prisma-users';
+import { join } from 'path';
+
+const envFilePath =
+  process.env.NODE_ENV === 'production'
+    ? join(process.cwd(), '.env.prod')
+    : join(process.cwd(), '.env.dev');
 
 @Module({
   imports: [
+    UsersPrismaModule,
     PassportModule,
-    // HttpModule, // Надає HttpService для ін'єкції
+    // HttpModule,
     CommonModule,
     JwtStrategyModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath:
-        process.env.NODE_ENV === 'production'
-          ? 'apps/user-service/.env.prod'
-          : 'apps/user-service/.env.dev',
+      envFilePath
     }),
   ],
   providers: [
-    JwtStrategy, // Реєструємо нашу локальну стратегію як провайдер
+    JwtStrategy,
   ],
 })
 export class AppModule {}

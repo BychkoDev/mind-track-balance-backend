@@ -21,6 +21,7 @@
       "@app/common": ["libs/common/src"],
       "@app/common/*": ["libs/common/src/*"],
       "@app/prisma-auth": ["packages/auth-db/src"],
+      "@app/prisma-users": ["packages/users-db/src"],
     },
     "outDir": "./dist",
   },
