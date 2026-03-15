@@ -9,6 +9,6 @@ import { CommonModule } from '@app/common';
   imports: [CommonModule, UserKafkaModule],
   providers: [UserService, UserRepository],
   controllers: [UserController],
-  exports: [UserModule],
+  exports: [UserService],
 })
 export class UserModule {}

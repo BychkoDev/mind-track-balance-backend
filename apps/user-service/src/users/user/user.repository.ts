@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@app/common';
-import { User, Locale } from '@prisma/client';
+import { UsersPrismaService, User, Locale } from '@app/prisma-users';
 
 @Injectable()
 export class UserRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: UsersPrismaService) {}
 
   async createUserProfile(data: {
     uuid: string;

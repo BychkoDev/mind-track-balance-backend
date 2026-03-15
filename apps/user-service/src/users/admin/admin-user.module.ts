@@ -8,6 +8,6 @@ import { CommonModule } from '@app/common';
   imports: [CommonModule],
   providers: [AdminUserService, AdminUserRepository],
   controllers: [AdminUserController],
-  exports: [AdminUserModule],
+  exports: [AdminUserService],
 })
 export class AdminUserModule {}

@@ -9,9 +9,9 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   const configService = app.get(ConfigService);
-  const port = configService.get<number>('PORT_USER') || 3003;
+  const port = configService.get<number>('PORT_USER') || 4091;
 
-  // Підключаємо мікросервіс Kafka
+  // Connecting Kafka microservice
   app.connectMicroservice({
     transport: Transport.KAFKA,
     options: {
@@ -23,14 +23,12 @@ async function bootstrap() {
         },
       },
       consumer: {
-        // Дуже важливо! Кожен consumer в одній групі отримає повідомлення
-        // тільки один раз. Це забезпечує обробку "at-most-once".
         groupId: 'user-service-consumer',
       },
     },
   });
 
-  // Запускаємо всі мікросервіси та веб-сервер (якщо він потрібен)
+  // Start all microservices and the web server (if needed)
   await app.startAllMicroservices();
   await app.listen(port);
 }

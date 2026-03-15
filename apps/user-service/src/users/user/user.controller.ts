@@ -41,7 +41,7 @@ export class UserController {
   }
 
   @EventPattern('user_created')
-  handleUserCreated(@Payload() data: UserCreatedEvent) {
+  async handleUserCreated(@Payload() data: UserCreatedEvent) {
     console.log(
       '!!!!!!!!!!!!!!!!!!!!!!!!! ------ Received a new user_created event:',
       data,
@@ -52,6 +52,6 @@ export class UserController {
     // - Записати дані в свою базу
     console.log(`➡️ Creating profile for user ${data.email} (${data.uuid})`);
     
-    // TODO: Calls a user creation method in UserService
+    await this.userService.handleUserCreated(data);
   }
 }

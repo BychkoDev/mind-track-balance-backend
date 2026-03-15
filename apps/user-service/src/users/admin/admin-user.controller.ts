@@ -3,7 +3,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { RolesGuard } from '@app/common/guards/roles.guard';
 import { Role } from '@app/common/enums/role.enum';
 import { Roles } from '@app/common/decorators/roles.decorator';
-import { EventPattern, Payload } from '@nestjs/microservices';
+// import { EventPattern, Payload } from '@nestjs/microservices';
 
 @Controller('/api/v1/admin')
 export class AdminUserController {

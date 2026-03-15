@@ -1,6 +1,6 @@
 import { Inject, Injectable } from '@nestjs/common';
 import { UserRepository } from './user.repository';
-import { ClientKafka, EventPattern, Payload } from '@nestjs/microservices';
+import { ClientKafka } from '@nestjs/microservices';
 import { UserCreatedEvent } from './events/user-create.event';
 import { KAFKA_SERVICE } from '../../kafka/user-kafka.module';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
@@ -12,8 +12,7 @@ export class UserService {
     @Inject(KAFKA_SERVICE) private readonly kafkaClient: ClientKafka,
   ) {}
 
-  @EventPattern('user_created')
-  async handleUserCreated(@Payload() data: UserCreatedEvent) {
+  async handleUserCreated(data: UserCreatedEvent) {
     console.log(
       '!!!!!!!!!!!!!!!!!!!!!!!!! ------ Received a new user_created event:',
       data,
