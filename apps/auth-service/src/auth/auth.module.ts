@@ -20,7 +20,7 @@ import { AuthService } from './auth.service';
       useFactory: (configService: ConfigService) => {
         const host = configService.get<string>('REDIS_HOST', 'localhost');
         const port = configService.get<number>('REDIS_PORT', 6379);
-        const password = configService.get<string>('REDIS_PASSWORD', '');
+        const password = configService.get<string>('REDIS_PASSWORD', 'root');
         const url = password ? `redis://:${password}@${host}:${port}` : `redis://${host}:${port}`;
         return {
           stores: [createKeyv(url)],
@@ -43,7 +43,7 @@ import { AuthService } from './auth.service';
             expiresIn: configService.get<string>(
               'JWT_ACCESS_EXPIRATION',
               '15m',
-            ),
+            ) as any,
           },
         };
       },

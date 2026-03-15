@@ -19,10 +19,10 @@
     "baseUrl": "./",
     "paths": {
       "@app/common": ["libs/common/src"],
-      "@app/common/*": ["libs/common/src/*"]
+      "@app/common/*": ["libs/common/src/*"],
+      "@app/prisma-auth": ["packages/auth-db/src"],
     },
     "outDir": "./dist",
-
   },
   "exclude": ["node_modules", "dist"]
 }

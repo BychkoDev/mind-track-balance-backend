@@ -6,7 +6,7 @@ import { AuthUserService } from '../auth-user/auth-user.service';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
 import { JwtTokensDto } from './dto/jwt-tokens.dto';
-import { AuthUser } from '@prisma/client';
+import { AuthUser } from '@app/prisma-auth';
 import { ForbiddenException, Inject, OnModuleInit } from '@nestjs/common';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
@@ -162,18 +162,18 @@ export class AuthService implements OnModuleInit {
       '15m',
     );
     const [accessToken, refreshToken] = await Promise.all([
-      this.jwtService.signAsync(payload, {
+      this.jwtService.signAsync(payload as any, {
         algorithm: 'RS256',
-        expiresIn: accessExpiration,
-        audience: ['user-service', 'notification-service'], // можна масив
+        expiresIn: accessExpiration as any,
+        audience: ['user-service', 'notification-service'],
         issuer: 'auth-service',
       }),
       this.jwtService.signAsync(
-        { sub: user.uuid },
+        { sub: user.uuid } as any,
         {
           secret: refreshTokenSecret,
           algorithm: 'HS256',
-          expiresIn: refreshExpiration,
+          expiresIn: refreshExpiration as any,
         },
       ),
     ]);

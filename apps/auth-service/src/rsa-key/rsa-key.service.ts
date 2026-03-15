@@ -1,7 +1,7 @@
 import { Injectable, OnModuleInit, Logger } from '@nestjs/common';
 import { generateKeyPairSync } from 'crypto';
 import { RsaKeyRepository } from './rsa-key.repository';
-import { RsaKey } from '@prisma/client';
+import { RsaKey } from '@app/prisma-auth';
 
 @Injectable()
 export class RsaKeyService implements OnModuleInit {

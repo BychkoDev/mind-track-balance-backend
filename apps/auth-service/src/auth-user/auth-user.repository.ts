@@ -1,10 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@app/common';
-import { AuthUser, AuthUserJwtRefreshToken, Role } from '@prisma/client';
+import { AuthPrismaService } from '@app/prisma-auth';
+import { AuthUser, AuthUserJwtRefreshToken, Role } from '@app/prisma-auth';
 
 @Injectable()
 export class AuthUserRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: AuthPrismaService) {}
 
   async createUser(
     uuid: string,

@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { ClientKafka } from '@nestjs/microservices';
 import { AuthUserRepository } from './auth-user.repository';
 import { SignupDto } from './dto/signup.dto';
-import { AuthUser, AuthUserJwtRefreshToken, Role } from '@prisma/client';
+import { AuthUser, AuthUserJwtRefreshToken, Role } from '@app/prisma-auth';
 import { KAFKA_SERVICE } from '../kafka/auth-kafka.module';
 
 @Injectable()

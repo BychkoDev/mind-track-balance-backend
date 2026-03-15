@@ -1,10 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@app/common';
-import { RsaKey } from '@prisma/client';
+import { AuthPrismaService, RsaKey } from '@app/prisma-auth';
 
 @Injectable()
 export class RsaKeyRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: AuthPrismaService) {}
 
   async findLastRsaKey(): Promise<RsaKey | null> {
     return await this.prisma.rsaKey.findFirst({
