@@ -66,6 +66,9 @@ jspm_packages/
 *.txt
 
 
+**/migrations/*
 pgdata/
-libs/
 **/src/generated/
+libs/*
+!libs/**
+!libs/**/*.ts

@@ -54,7 +54,6 @@ export class AuthService implements OnModuleInit {
     const tokens = await this._createTokens(user);
     const hashrt = await this._hashJwtRefreshToken(tokens.refreshToken);
 
-    // Save to Postgres
     await this.authUserService.upsertRefreshToken(user.uuid, {
       deletionTime: deletionTime,
       deviceId: loginDto.deviceId,
@@ -68,9 +67,6 @@ export class AuthService implements OnModuleInit {
     return tokens;
   }
 
-  /**
-   * Вихід з системи: видалення refresh токена з бази та кешу.
-   */
   async logout(userUuid: string): Promise<void> {
     await this.authUserService.upsertRefreshToken(userUuid, {
       jwtRefreshToken: null,
@@ -79,23 +75,23 @@ export class AuthService implements OnModuleInit {
     await this.cacheManager.del(`refresh_token:${userUuid}`);
   }
 
-  /**
-   * Оновлення пари токенів за допомогою refresh токена.
-   */
   async refreshTokens(refreshToken: string): Promise<JwtTokensDto> {
     try {
-      const refreshTokenSecret = this.configService.get<string>('JWT_REFRESH_SECRET');
+      const refreshTokenSecret =
+        this.configService.get<string>('JWT_REFRESH_SECRET');
       const payload = await this.jwtService.verifyAsync(refreshToken, {
         secret: refreshTokenSecret,
-      }) as { sub: string };
+      });
       const userUuid = payload.sub;
 
-      let storedHash: string | undefined | null = await this.cacheManager.get<string>(`refresh_token:${userUuid}`);
+      let storedHash: string | undefined | null =
+        await this.cacheManager.get<string>(`refresh_token:${userUuid}`);
 
-      let user: (AuthUser & { jwtRefreshToken?: { jwtRefreshToken: string | null } }) | null = null;
+      let user:
+        | (AuthUser & { jwtRefreshToken?: { jwtRefreshToken: string | null } })
+        | null = null;
       if (!storedHash) {
-        // Fallback to PostgreSQL
-        user = await this.authUserService.findUserByUuid(userUuid) as any;
+        user = (await this.authUserService.findUserByUuid(userUuid)) as any;
         if (!user || !user.jwtRefreshToken?.jwtRefreshToken) {
           throw new ForbiddenException('Доступ заборонено (відсутній токен)');
         }
@@ -104,16 +100,17 @@ export class AuthService implements OnModuleInit {
 
       const isRefreshTokenMatching = await bcrypt.compare(
         refreshToken,
-        storedHash as string,
+        storedHash,
       );
 
       if (!isRefreshTokenMatching) {
         throw new ForbiddenException('Доступ заборонено');
       }
 
-      // Check active status by querying the user if we haven't already
       if (!user) {
-        user = await this.authUserService.findUserByUuid(userUuid) as AuthUser;
+        user = (await this.authUserService.findUserByUuid(
+          userUuid,
+        )) as AuthUser;
       }
 
       if (!user || !user.active) {
@@ -168,14 +165,11 @@ export class AuthService implements OnModuleInit {
         audience: ['user-service', 'notification-service'],
         issuer: 'auth-service',
       }),
-      this.jwtService.signAsync(
-        { sub: user.uuid } as any,
-        {
-          secret: refreshTokenSecret,
-          algorithm: 'HS256',
-          expiresIn: refreshExpiration as any,
-        },
-      ),
+      this.jwtService.signAsync({ sub: user.uuid } as any, {
+        secret: refreshTokenSecret,
+        algorithm: 'HS256',
+        expiresIn: refreshExpiration as any,
+      }),
     ]);
 
     return new JwtTokensDto(accessToken, refreshToken);

@@ -21,7 +21,9 @@ import { AuthService } from './auth.service';
         const host = configService.get<string>('REDIS_HOST', 'localhost');
         const port = configService.get<number>('REDIS_PORT', 6379);
         const password = configService.get<string>('REDIS_PASSWORD', 'root');
-        const url = password ? `redis://:${password}@${host}:${port}` : `redis://${host}:${port}`;
+        const url = password
+          ? `redis://:${password}@${host}:${port}`
+          : `redis://${host}:${port}`;
         return {
           stores: [createKeyv(url)],
         };
