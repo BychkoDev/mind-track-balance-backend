@@ -34,7 +34,7 @@ node_modules/
 
 # Docker
 docker-compose.override.yml
-docker-compose.local.yml
+docker-compose.sh
 
 # Windows system files
 Thumbs.db
@@ -66,8 +66,6 @@ jspm_packages/
 *.txt
 
 
-**/migrations/*
 pgdata/
 libs/
-db/
 **/src/generated/

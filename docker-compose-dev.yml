@@ -1,206 +1,4 @@
 services:
-
-#  auth-server:
-#    container_name: auth-server
-#    build:
-#      context: ./auth
-#    restart: unless-stopped
-#    environment:
-#      - DB_URL=jdbc:postgresql://postgres:5432/${DB_DATABASE_AUTH}
-#      - DB_USERNAME=${DB_USER_AUTH}
-#      - DB_PASSWORD=${DB_PASSWORD_AUTH}
-#      - EUREKA_USERNAME=${EUREKA_USERNAME}
-#      - EUREKA_PASSWORD=${EUREKA_PASSWORD}
-#      - JWT_SECRET=${JWT_SECRET}
-#      - JWT_ACCESS_EXPIRATION=${JWT_ACCESS_EXPIRATION}
-#      - JWT_REFRESH_EXPIRATION=${JWT_REFRESH_EXPIRATION}
-#      - REDIS_PASSWORD=${REDIS_PASSWORD}
-#      - REDIS_URL=redis://redis:6379
-#    depends_on:
-#      config-server:
-#        condition: service_healthy
-#      discovery-server:
-#        condition: service_healthy
-#      postgres:
-#          condition: service_started
-#      redis:
-#        condition: service_started
-#    networks:
-#      - cloud-network
-
-#  gateway-server:
-#    container_name: gateway-server
-#    build:
-#      context: ./api-gateway
-#    restart: unless-stopped
-#    env_file:
-#      - .env.dev
-#    environment:
-#      - EUREKA_USERNAME=${EUREKA_USERNAME}
-#      - EUREKA_PASSWORD=${EUREKA_PASSWORD}
-#    healthcheck:
-#      test: curl --fail http://localhost:8080/management || exit 1
-#      interval: 10s
-#      timeout: 2s
-#      retries: 5
-#    ports:
-#      - "8080:8080"
-#    networks:
-#      - cloud-network
-#
-#  classroom-service:
-#    container_name: classroom-service
-#    build:
-#      context: ./classroom
-#    restart: unless-stopped
-#    env_file:
-#      - .env.dev
-#    environment:
-#      - DB_URL=jdbc:postgresql://postgres:5432/${DB_DATABASE_CLASSROOM}
-#      - DB_USERNAME=${DB_USER_CLASSROOM}
-#      - DB_PASSWORD=${DB_PASSWORD_CLASSROOM}
-#      - EUREKA_USERNAME=${EUREKA_USERNAME}
-#      - EUREKA_PASSWORD=${EUREKA_PASSWORD}
-#      - MINIO_URL=http://minio-1:9001
-#      - MINIO_BUCKET=${PRODUCT_SERVICE_MINIO_BUCKET}
-#      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}
-#      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY}
-#      - URL_AUTH_SERVER=${URL_AUTH_SERVER}
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#      config-server:
-#        condition: service_healthy
-#      discovery-server:
-#        condition: service_healthy
-#      auth-server:
-#        condition: service_healthy
-#    networks:
-#      - cloud-network
-#
-#
-#  inventory-service:
-#    container_name: inventory-service
-#    build:
-#      context: ./inventory
-#    restart: unless-stopped
-#    env_file:
-#      - .env.dev
-#    environment:
-#      - DB_URL=jdbc:postgresql://localhost:5432/${DB_DATABASE_OTHER}
-#      - DB_USERNAME=${DB_USERNAME}
-#      - DB_PASSWORD=${DB_PASSWORD}
-#      - EUREKA_USERNAME=${EUREKA_USERNAME}
-#      - EUREKA_PASSWORD=${EUREKA_PASSWORD}
-#      - URL_AUTH_SERVER=${URL_AUTH_SERVER}
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#      config-server:
-#        condition: service_healthy
-#      discovery-server:
-#        condition: service_healthy
-#    networks:
-#      - cloud-network
-#
-#  notification-service:
-#    container_name: notification-service
-#    build:
-#      context: ./notification
-#    restart: unless-stopped
-#    environment:
-#      - DB_URL=jdbc:postgresql://postgres:5432/${DB_DATABASE_NOTIFICATION}
-#      - DB_USERNAME=${DB_USER_NOTIFICATION}
-#      - DB_PASSWORD=${DB_PASSWORD_NOTIFICATION}
-#      - MAIL_HOST=${MAIL_HOST}
-#      - MAIL_PORT=${MAIL_PORT}
-#      - MAIL_USERNAME=${MAIL_USERNAME}
-#      - MAIL_PASSWORD=${MAIL_PASSWORD}
-#      - EUREKA_USERNAME=${EUREKA_USERNAME}
-#      - EUREKA_PASSWORD=${EUREKA_PASSWORD}
-#      - URL_AUTH_SERVER=${URL_AUTH_SERVER}
-#    depends_on:
-#      config-server:
-#        condition: service_healthy
-#      discovery-server:
-#        condition: service_healthy
-#      auth-server:
-#        condition: service_healthy
-#    networks:
-#      - cloud-network
-#
-#  user-details-service:
-#    container_name: user-details-service
-#    build:
-#      context: ./user-details
-#    restart: unless-stopped
-#    environment:
-#      - DB_URL=jdbc:postgresql://postgres:5432/${DB_DATABASE_USER}
-#      - DB_USERNAME=${DB_USER_USER}
-#      - DB_PASSWORD=${DB_PASSWORD_USER}
-#      - EUREKA_USERNAME=${EUREKA_USERNAME}
-#      - EUREKA_PASSWORD=${EUREKA_PASSWORD}
-#      - URL_AUTH_SERVER=${URL_AUTH_SERVER}
-#    depends_on:
-#      config-server:
-#        condition: service_healthy
-#      discovery-server:
-#        condition: service_healthy
-#      auth-server:
-#        condition: service_healthy
-#    networks:
-#      - cloud-network
-#
-#  info-service:
-#    container_name: info-service
-#    build:
-#      context: ./info
-#    restart: unless-stopped
-#    env_file:
-#      - .env.dev
-#    environment:
-#      - DB_URL=jdbc:postgresql://localhost:5432/${DB_DATABASE_OTHER}
-#      - DB_USERNAME=${DB_USERNAME}
-#      - DB_PASSWORD=${DB_PASSWORD}
-#      - EUREKA_USERNAME=${EUREKA_USERNAME}
-#      - EUREKA_PASSWORD=${EUREKA_PASSWORD}
-#      - URL_AUTH_SERVER=${URL_AUTH_SERVER}
-#    depends_on:
-#      postgres:
-#        condition: service_healthy
-#      config-server:
-#        condition: service_healthy
-#      discovery-server:
-#        condition: service_healthy
-#    networks:
-#      - cloud-network
-#
-#  order-service:
-#    container_name: order-service
-#    build:
-#      context: ./order
-#    restart: unless-stopped
-#    environment:
-#      - DB_URL=jdbc:postgresql://localhost:5432/${DB_DATABASE_OTHER}
-#      - DB_USERNAME=${DB_USERNAME}
-#      - DB_PASSWORD=${DB_PASSWORD}
-#      - EUREKA_USERNAME=${EUREKA_USERNAME}
-#      - EUREKA_PASSWORD=${EUREKA_PASSWORD}
-#      - URL_AUTH_SERVER=${URL_AUTH_SERVER}
-#    depends_on:
-#      config-server:
-#        condition: service_healthy
-#      discovery-server:
-#        condition: service_healthy
-#      auth-server:
-#        condition: service_healthy
-#      inventory-service:
-#        condition: service_healthy
-#      user-details-service:
-#        condition: service_healthy
-#    networks:
-#      - cloud-network
-
   redis:
     image: redis:7.4-alpine
     container_name: redis
@@ -209,7 +7,7 @@ services:
       - '6379:6379'
     environment:
       - REDIS_PASSWORD=${REDIS_PASSWORD:-root}
-    # Зберігання на диск кожні 60с, ліміт пам'яті 256MB для кешу, політика витіснення - найстаріші з TTL
+    # Storage on disk every 60s, memory limit 256MB for cache, eviction policy - oldest with TTL
     command: "redis-server --save 60 1 --loglevel warning --requirepass ${REDIS_PASSWORD:-root} --maxmemory 256mb --maxmemory-policy volatile-lru"
     networks:
       - cloud-network
@@ -270,12 +68,11 @@ services:
     networks:
       - cloud-network
   kafka:
-    image: apache/kafka:3.7.0  # Вказуємо конкретну стабільну версію
+    image: apache/kafka:3.7.0
     container_name: kafka
     ports:
       - "9092:9092"
     environment:
-      # Налаштування для KRaft (без Zookeeper)
       KAFKA_NODE_ID: 1
       KAFKA_PROCESS_ROLES: broker,controller
       KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
@@ -284,7 +81,7 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
       KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      # Генерація Cluster ID (необхідно для KRaft)
+      # Cluster ID generation (required for KRaft)
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
 
 networks:
