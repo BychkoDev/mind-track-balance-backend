@@ -14,10 +14,8 @@ export class MindTrackService {
   ) {}
 
   async createEntry(userUuid: string, dto: CreateEntryDto) {
-    // 1. Збереження запису
     const entry = await this.repository.createEntry(userUuid, dto);
 
-    // 2. Асинхронний бекграунд-запуск AI (fire-and-forget)
     if (dto.text && dto.text.trim().length > 0) {
       this.analyzeAndSave(entry.uuid, userUuid, dto.text).catch((err) =>
         this.logger.error('Background AI analysis failed', err),
@@ -40,11 +38,10 @@ export class MindTrackService {
         `AI Analysis complete for ${entryUuid}. Sentiment: ${result.sentiment}`,
       );
       
-      // Зберігаємо результати аналізу
       await this.repository.updateEntry(entryUuid, userUuid, {
         aiSentiment: result.sentiment,
         aiTopics: result.topics,
-      } as any); // Type cast until we update UpdateEntryDto
+      } as any);
     }
   }
 
@@ -61,12 +58,12 @@ export class MindTrackService {
   }
 
   async updateEntry(uuid: string, userUuid: string, dto: UpdateEntryDto) {
-    await this.getEntryById(uuid, userUuid); // Check exists
+    await this.getEntryById(uuid, userUuid);
     return await this.repository.updateEntry(uuid, userUuid, dto);
   }
 
   async deleteEntry(uuid: string, userUuid: string) {
-    await this.getEntryById(uuid, userUuid); // Check exists
+    await this.getEntryById(uuid, userUuid);
     return await this.repository.deleteEntry(uuid, userUuid);
   }
 }

@@ -41,12 +41,10 @@ export class AiService {
     }
 
     try {
-      // Fetch prompt from database (typecast via any since TS server is lagging)
       const templateRecord = await (this.prisma as any).promptTemplate.findUnique({
         where: { code: 'ANALYZE_JOURNAL' },
       });
 
-      // Provide fallbacks if DB record is not created yet
       const systemInstruction =
         templateRecord?.isActive && templateRecord.systemPrompt
           ? templateRecord.systemPrompt
@@ -57,7 +55,6 @@ export class AiService {
           ? templateRecord.userPrompt
           : FALLBACK_USER_PROMPT;
 
-      // Interpolate the text variable
       const prompt = userTemplate.replace('{{text}}', text);
 
       const model = this.genAI.getGenerativeModel({
@@ -69,7 +66,6 @@ export class AiService {
       const responseText = result.response.text();
 
       try {
-        // Strip out any potential markdown blocks if Gemini didn't listen
         const cleanText = responseText.replace(/```json\n?|\n?```/gi, '').trim();
         const parsed = JSON.parse(cleanText);
         

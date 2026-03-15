@@ -8,7 +8,7 @@ export class SeoObjectController {
   // @Roles(Role.MODERATOR)
   // @UseGuards(AuthGuard('jwt'), RolesGuard)
   // async getHello() {
-  //     return { message: '✅ Все працює!' };
+  //     return { message: 'Все працює!' };
   // }
 
   // @Post("/login")

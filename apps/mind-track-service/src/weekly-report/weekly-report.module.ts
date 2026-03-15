@@ -17,11 +17,11 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         transport: Transport.KAFKA,
         options: {
           client: {
-            clientId: 'mind-track-service-client', // unique clientId
+            clientId: 'mind-track-service-client',
             brokers: [process.env.KAFKA_BROKERS || 'localhost:9092'],
           },
           consumer: {
-            groupId: 'mind-track-weekly-consumer', // unique groupId
+            groupId: 'mind-track-weekly-consumer',
           },
         },
       },

@@ -25,7 +25,6 @@ export class WeeklyReportService {
   async generateWeeklyReportForUser(userUuid: string, startDate: Date, endDate: Date) {
     this.logger.log(`Generating weekly report for user ${userUuid}`);
 
-    // Fetch entries within the date range
     const entries = await this.mindTrackRepository.findEntries(userUuid);
     const weeklyEntries = entries.filter(
       (entry) => entry.createdAt >= startDate && entry.createdAt <= endDate,
@@ -36,30 +35,25 @@ export class WeeklyReportService {
       return null;
     }
 
-    // Calculate basic stats
     const totalEntries = weeklyEntries.length;
     const moodSum = weeklyEntries.reduce((acc, entry) => acc + entry.moodScore, 0);
     const averageMood = totalEntries > 0 ? moodSum / totalEntries : null;
 
-    // Collect all topics
     const allTopics = weeklyEntries.flatMap(e => e.aiTopics || []);
     const topicCounts = allTopics.reduce((acc, topic) => {
       acc[topic] = (acc[topic] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
     
-    // Sort topics by frequency, take top 5
     const topTopics = Object.entries(topicCounts)
       .sort((a, b) => b[1] - a[1])
       .slice(0, 5)
       .map(entry => entry[0]);
 
-    // Prepare context for Gemini
     const entriesContext = weeklyEntries
       .map((e) => `[${e.createdAt.toISOString()}] Mood: ${e.moodScore}/10 | Sentiment: ${e.aiSentiment} | Text: ${e.text || 'N/A'}`)
       .join('\n');
 
-    // Fetch Template
     const templateRecord = await (this.prisma as any).promptTemplate.findUnique({
       where: { code: 'GENERATE_WEEKLY_REPORT' },
     });
@@ -87,7 +81,6 @@ Return ONLY a raw JSON object string:
          return null;
       }
 
-      // Save the report in the database
       const report = await this.repository.createReport({
         userUuid,
         weekStartDate: startDate,
@@ -101,14 +94,12 @@ Return ONLY a raw JSON object string:
       // Generate PDF
       const pdfBuffer = await this.generatePdf(report, weeklyEntries);
 
-      // Fetch user profile to get email and name
       const userProfile = await (this.prisma as any).user.findUnique({
         where: { uuid: userUuid },
         select: { email: true, firstname: true, role: true },
       });
 
       if (userProfile && userProfile.email) {
-        // Send email via Kafka
         this.kafkaClient.emit('send_weekly_report', {
           to: userProfile.email,
           name: userProfile.firstname || 'Користувач',
@@ -140,7 +131,6 @@ Return ONLY a raw JSON object string:
           resolve(pdfData);
         });
 
-        // Add Header
         doc.fontSize(20).text('MindTrack Balance - Тижневий Звіт', { align: 'center' });
         doc.moveDown();
         
@@ -149,7 +139,6 @@ Return ONLY a raw JSON object string:
         doc.text(`Середній настрій: ${report.averageMood ? report.averageMood.toFixed(1) : 'N/A'}/10`);
         doc.moveDown();
 
-        // Top Topics
         if (report.topTopics && report.topTopics.length > 0) {
           doc.fontSize(14).text('Основні теми тижня:', { underline: true });
           report.topTopics.forEach((topic: string) => {
@@ -158,12 +147,10 @@ Return ONLY a raw JSON object string:
           doc.moveDown();
         }
 
-        // AI Summary
         doc.fontSize(14).text('Резюме від ШІ:', { underline: true });
         doc.fontSize(12).text(report.summaryText, { align: 'justify' });
         doc.moveDown(2);
 
-        // Entries List
         doc.fontSize(14).text('Ваші записи:', { underline: true });
         doc.moveDown();
         entries.forEach((e) => {

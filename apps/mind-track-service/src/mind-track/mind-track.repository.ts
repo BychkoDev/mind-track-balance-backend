@@ -63,7 +63,7 @@ export class MindTrackRepository {
         ...(tags
           ? {
               tags: {
-                set: [], // Clear old tags
+                set: [],
                 connectOrCreate: tags.map((tag) => ({
                   where: {
                     userUuid_name: {

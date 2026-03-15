@@ -65,10 +65,12 @@ jspm_packages/
 *.docx
 *.txt
 
-
 **/migrations/*
 pgdata/
 **/src/generated/
-libs/*
-!libs/**
+
+libs/**/*
+!libs/**/
 !libs/**/*.ts
+!libs/**/*.json
+libs/**/*.d.ts

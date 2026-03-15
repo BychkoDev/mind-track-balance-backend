@@ -7,7 +7,7 @@ import { PassportModule } from '@nestjs/passport';
 @Module({
   imports: [
     PassportModule,
-    // HttpModule, // Надає HttpService для ін'єкції
+    // HttpModule,
     CommonModule,
     JwtStrategyModule,
     ConfigModule.forRoot({

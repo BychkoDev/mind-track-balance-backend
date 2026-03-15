@@ -15,7 +15,6 @@ export class AllExceptionsFilter implements ExceptionFilter {
     const status = exception.getStatus();
     const errorResponse = exception.getResponse();
 
-    // Формуємо формат помилки, що буде повернений клієнту
     response.status(status).json({
       statusCode: status,
       message:

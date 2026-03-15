@@ -19,16 +19,12 @@ export class PageBlockService {
   //     return tokens;
   // }
 
-  /**
-   * Вихід з системи: видалення refresh токена з бази.
-   */
+
   // async logout(userId: number): Promise<void> {
   //     await this.authUserService.updateRefreshToken(userId, null);
   // }
 
-  /**
-   * Оновлення пари токенів за допомогою refresh токена.
-   */
+
   // async refreshTokens(userId: number, refreshToken: string): Promise<JwtTokensDto> {
   //     const user = await this.authUserService.findUserById(userId);
   //     if (!user || !user.hashedRefreshToken) {

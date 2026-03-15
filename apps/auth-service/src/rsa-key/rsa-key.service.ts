@@ -60,7 +60,6 @@ export class RsaKeyService implements OnModuleInit {
     return newKey;
   }
 
-  // Публічні методи для отримання ключів іншими сервісами
   getPublicKey(): string {
     return this.publicKey;
   }

@@ -7,7 +7,7 @@ export class PageController {
 
   @Get('/url')
   async getHello() {
-    return { message: '✅ Все працює!' };
+    return { message: ' Все працює!' };
   }
 
   // @Post('/create')

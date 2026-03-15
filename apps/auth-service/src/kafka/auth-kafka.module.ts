@@ -23,7 +23,6 @@ export const KAFKA_SERVICE = 'AUTH_KAFKA_SERVICE';
                 retries: 8,
               },
             },
-            // Явне налаштування групи для внутрішнього споживача
             consumer: {
               groupId: 'auth-service-client-group',
             },
