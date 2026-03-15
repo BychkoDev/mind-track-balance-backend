@@ -1,101 +1,10 @@
-enum Role {
-  USER  @map("user")
-  ADMIN @map("admin")
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
 }
 
-enum UserGender {
-  MALE   @map("male")
-  FEMALE @map("female")
-  OTHER  @map("other")
-}
-
-model AuthUser {
-  uuid            String   @id @default(uuid())
-  email           String   @unique
-  password        String
-  active          Boolean  @default(false)
-  serviceCode     Int?     @map("service_code")
-  serviceCodeUUID String?  @map("service_code_uuid") @db.Uuid
-  role            Role     @default(USER)
-  createdAt       DateTime @default(now()) @map("created_at") @db.Timestamp()
-
-  jwtRefreshToken AuthUserJwtRefreshToken?
-
-  @@map("auth_users")
-}
-
-model AuthUserJwtRefreshToken {
-  uuid            String    @id @default(uuid())
-  jwtRefreshToken String?   @map("jwt_refresh_token")
-  deviceId        String?   @map("device_id")
-  userUuid        String    @unique @map("user_uuid")
-  user            AuthUser  @relation(fields: [userUuid], references: [uuid], onDelete: Cascade)
-  deletionTime    DateTime? @map("deletion_time") @db.Timestamp()
-
-  @@map("auth_user_jwt_refresh_tokens")
-}
-
-model User {
-  uuid      String   @id @default(uuid())
-  email     String
-  firstname String?
-  surname   String?
-  role      Role     @default(USER)
-  active    Boolean
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-
-  login             String
-  about             String     @db.VarChar(300)
-  vip               Boolean
-  vipExpirationDate DateTime   @map("vip_expiration_date") @db.Date
-  gender            UserGender @default(OTHER) @map("user_gender")
-  userIp            String     @map("user_ip")
-  lastVisit         DateTime?  @map("last_visit")
-  timezone          String     @default("Europe/Kiev")
-  locale            Locale     @default(uk)
-
-  mindTrackEntries MindTrackEntry[]
-  mindTrackTags    MindTrackTag[]
-  mindTrackAdvices MindTrackAdvice[]
-
-  @@map("users")
-}
-
-model AdminUser {
-  uuid      String   @id @default(uuid())
-  email     String
-  firstname String?
-  surname   String?
-  role      Role     @default(USER)
-  active    Boolean
-  createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
-
-  @@map("admins")
-}
-
-model RsaKey {
-  uuid          String    @id @default(uuid())
-  publicKey     String    @map("public_key")
-  privateKey    String    @map("private_key")
-  revoked       Boolean   @default(false)
-  dateOfRevoked DateTime? @map("date_of_revoked") @db.Timestamp()
-  createdAt     DateTime  @default(now()) @map("created_at") @db.Timestamp()
-
-  @@map("rsa_keys")
-}
-
-enum ImageFormat {
-  jpeg
-  png
-  webp
-  svg
-}
-
-enum ImageVariantKind {
-  original
-  thumb
-  web
-  userAvatar
+datasource db {
+  provider = "postgresql"
 }
 
 enum Locale {
@@ -303,46 +212,4 @@ model SeoObject {
 
   @@unique([pageUrl, locale], map: "uniq_seo_page_locale")
   @@map("seo_objects")
-}
-
-model MindTrackEntry {
-  uuid        String   @id @default(uuid())
-  userUuid    String   @map("user_uuid")
-  user        User     @relation(fields: [userUuid], references: [uuid], onDelete: Cascade)
-  moodScore   Int // e.g. 1 to 5, or 1 to 10
-  text        String?  @db.Text
-  aiSentiment String?  @map("ai_sentiment") // Results from AI analysis
-  aiTopics    String[] @map("ai_topics") // e.g. ["work", "anxiety"]
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
-
-  tags MindTrackTag[]
-
-  @@index([userUuid, createdAt])
-  @@map("mind_track_entries")
-}
-
-model MindTrackTag {
-  uuid     String @id @default(uuid())
-  name     String
-  userUuid String @map("user_uuid") // User's custom tags
-  user     User   @relation(fields: [userUuid], references: [uuid], onDelete: Cascade)
-
-  entries MindTrackEntry[]
-
-  @@unique([userUuid, name])
-  @@map("mind_track_tags")
-}
-
-model MindTrackAdvice {
-  uuid          String   @id @default(uuid())
-  userUuid      String   @map("user_uuid")
-  user          User     @relation(fields: [userUuid], references: [uuid], onDelete: Cascade)
-  content       String   @db.Text
-  relatedTopics String[] @map("related_topics") // e.g. ["anxiety", "work"]
-  isRead        Boolean  @default(false) @map("is_read")
-  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
-
-  @@map("mind_track_advices")
-  @@index([userUuid, createdAt])
 }

@@ -1,0 +1,22 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum ImageFormat {
+  jpeg
+  png
+  webp
+  svg
+}
+
+enum ImageVariantKind {
+  original
+  thumb
+  web
+  userAvatar
+}
