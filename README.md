@@ -1,4 +1,3 @@
-
 ## Description
 
 [Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
@@ -46,66 +45,29 @@ $ npm install -g @nestjs/mau
 $ mau deploy
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
-
-## Resources
-
-Check out a few resources that may come in handy when working with NestJS:
-
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
-
-
-
 # MindTrack Balance
 
-The project was created for those who are just starting to learn English. The project uses such technologies as SpringBoot, SpringDataJPA, Hibernate, Spring Security, JUnit, Mockito.
-
+The project uses such technologies as NestJS, PostgreSQL, Prisma 7.5.0, Redis, Kafka, Docker, Monorepo, Microservices.
 
 ## 🚀 About Me
+
 I have 1 year of experience in developing applications in NestJs.
-
-
 
 ## Authors
 
-- [@Anatolii Bychko. Create business logic, develop a project](https://www.github.com/bychko4891)
-- [@Project Link](https://github.com/bychko4891/mind-track-balance-backend)
+- [@Anatolii Bychko. Create business logic, develop a project](https://www.github.com/BychkoDev)
+- [@Project Link](https://github.com/BychkoDev/mind-track-balance-backend)
 
+## 🛠 Skills
 
-## 🛠  Skills
-Programming · Java Frameworks · Git · Spring Framework · Hibernate · Debugging · Java Development · Java · Object-Oriented Programming (OOP) · SQL
-
+Programming · Object-Oriented Programming (OOP) · NestJS · Next.js · React · TypeScript · PostgreSQL, MySQL
+TypeORM · Prisma · Tailwind CSS · Kafka · Jira · AWS (S3) · Git (Actions, Gitflow) · Monorepo · HTML, CSS · REST API · Docker · Microservices · CI/CD · Agile Methodology (Scrum,Kanban)
 
 ## 🔗 Links
 
 [![linkedin](https://img.shields.io/badge/linkedin-0A66C2?style=for-the-badge&logo=linkedin&logoColor=white)](https://www.linkedin.com/in/anatolii-bychko/)
 
-
-
-## Demo
-
-https://e-learn.top
+## About project
 
 What problem are we trying to solve?
 
@@ -150,6 +112,7 @@ Security: JWT + refresh tokens, input validation, CORS, rate limiting, helmet.
 Observability: structured logs, health checks, metrics.
 
 ## Suggested project structure
+
 ```bash
   /src
   /config          # env parsing, app config
