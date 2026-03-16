@@ -8,4 +8,10 @@ export class AdminUserRepository {
   async findByEmail(email: string): Promise<AdminUser | null> {
     return this.prisma.adminUser.findFirst({ where: { email } });
   }
+
+  async findAllUsers() {
+    return this.prisma.user.findMany({
+      orderBy: { createdAt: 'desc' },
+    });
+  }
 }

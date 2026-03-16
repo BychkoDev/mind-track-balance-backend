@@ -9,4 +9,8 @@ export class AdminUserService {
     const user = await this.repository.findByEmail(email);
     return user;
   }
+
+  async getAllUsers() {
+    return await this.repository.findAllUsers();
+  }
 }

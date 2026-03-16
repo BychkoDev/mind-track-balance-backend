@@ -5,9 +5,9 @@ import { PageService } from './page.service';
 import { CommonModule } from '@app/common';
 
 @Module({
-  imports: [CommonModule],
+  imports: [],
   providers: [PageService, PageRepository],
   controllers: [PageController],
-  exports: [PageModule],
+  exports: [PageService, PageRepository],
 })
 export class PageModule {}

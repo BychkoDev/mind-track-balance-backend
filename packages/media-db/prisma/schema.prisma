@@ -7,16 +7,12 @@ datasource db {
   provider = "postgresql"
 }
 
-enum ImageFormat {
-  jpeg
-  png
-  webp
-  svg
-}
+model MediaImage {
+  uuid             String   @id @default(uuid())
+  imageName        String   @map("image_name") @db.VarChar(80)
+  previewImageName String?  @map("preview_image_name") @db.VarChar(80)
+  bucket           String   @db.VarChar(80)
+  createdAt        DateTime @default(now()) @map("created_at")
 
-enum ImageVariantKind {
-  original
-  thumb
-  web
-  userAvatar
+  @@map("images")
 }

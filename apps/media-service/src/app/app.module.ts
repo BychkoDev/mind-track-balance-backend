@@ -5,9 +5,11 @@ import { ImageModule } from '../image/image.module';
 import { PassportModule } from '@nestjs/passport';
 import { MulterModule } from '@nestjs/platform-express';
 import { CommonModule } from '@app/common';
+import { MediaPrismaModule } from '@app/prisma-media';
 
 @Module({
   imports: [
+    MediaPrismaModule,
     S3StorageModule,
     ImageModule,
     PassportModule,

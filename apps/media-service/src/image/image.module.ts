@@ -7,6 +7,6 @@ import { CommonModule } from '@app/common';
   imports: [CommonModule],
   providers: [ImageService, ImageRepository],
   // controllers: [PageController],
-  exports: [ImageModule],
+  exports: [ImageService, ImageRepository],
 })
 export class ImageModule {}

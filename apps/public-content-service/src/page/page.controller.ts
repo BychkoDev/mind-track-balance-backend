@@ -1,12 +1,12 @@
-import { Controller, Get } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { PageService } from './page.service';
 
-@Controller('/api/v1/page')
+@Controller('/api/v1/pages')
 export class PageController {
   constructor(private readonly service: PageService) {}
 
-  @Get('/url')
-  async getHello() {
-    return { message: ' Все працює!' };
+  @Get()
+  async getPage(@Query('url') url: string, @Query('locale') locale?: string) {
+    return this.service.getPageByUrl(url, locale);
   }
 }

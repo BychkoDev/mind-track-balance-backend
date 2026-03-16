@@ -86,36 +86,6 @@ enum IconKey {
   sun
 }
 
-model MediaImage {
-  uuid      String         @id @default(uuid())
-  createdAt DateTime       @default(now())
-  variants  MediaVariant[]
-
-  @@map("images")
-}
-
-model MediaVariant {
-  uuid      String           @id @default(uuid())
-  imageUuid String           @map("image_uuid")
-  image     MediaImage       @relation(fields: [imageUuid], references: [uuid], onDelete: Cascade)
-  bucket    String           @db.VarChar(128)
-  imageName String           @map("image_name") @db.VarChar(512)
-  prefix    String?          @db.VarChar(256)
-  kind      ImageVariantKind
-  format    ImageFormat
-  mimeType  String           @map("mime_type") @db.VarChar(64)
-  width     Int?
-  height    Int?
-  sizeBytes BigInt?          @map("size_bytes")
-  etag      String?          @db.VarChar(128)
-  profile   String?          @db.VarChar(64)
-
-  @@unique([bucket, imageName], map: "uniq_bucket_key")
-  @@index([kind], map: "idx_variant_kind")
-  @@index([imageUuid], map: "idx_variant_image")
-  @@map("image_variants")
-}
-
 model Page {
   uuid                 String      @id @default(uuid())
   name                 String?     @unique
@@ -130,6 +100,20 @@ model Page {
   @@index([inMenu], map: "idx_pages_in_menu")
   @@index([inHeaderMenu], map: "idx_pages_in_header_menu")
   @@map("pages")
+}
+
+enum ImageFormat {
+  jpeg
+  png
+  webp
+  svg
+}
+
+enum ImageVariantKind {
+  original
+  thumb
+  web
+  userAvatar
 }
 
 model PageBlock {
@@ -148,7 +132,7 @@ model PageBlock {
   createdAt     DateTime      @default(now()) @db.Timestamptz
   updatedAt     DateTime      @updatedAt @db.Timestamptz
 
-  images       PageImage[]
+  images       Image[]
   iconImage    IconImage?
   translations PageBlockTranslation[]
 
@@ -159,46 +143,36 @@ model PageBlock {
   @@map("page_blocks")
 }
 
-model PageBlockTranslation {
-  id               String    @id @default(uuid())
-  blockUuid        String    @map("block_uuid")
-  block            PageBlock @relation(fields: [blockUuid], references: [uuid], onDelete: Cascade)
-  locale           Locale
-  name             String?   @db.VarChar(80)
-  shortDescription String?   @db.VarChar(400)
-  description      String?
+model Image {
+  uuid      String         @id @default(uuid())
+  blockUuid String         @map("block_uuid")
+  block     PageBlock      @relation(fields: [blockUuid], references: [uuid], onDelete: Cascade)
+  variants  ImageVariant[]
+  createdAt DateTime       @default(now()) @map("created_at")
 
-  @@unique([blockUuid, locale])
-  @@map("page_block_translations")
+  @@map("images")
 }
 
-model IconImage {
-  uuid          String        @id @default(uuid())
-  iconKey       IconKey       @map("icon_key")
-  blockUuid     String        @unique @map("block_id")
-  block         PageBlock     @relation(fields: [blockUuid], references: [uuid], onDelete: Cascade)
-  widthPx       Int           @default(0)
-  heightPx      Int           @default(0)
-  motionVariant MotionVariant @default(none)
-  position      Position      @default(main)
-  color         UiColorToken  @default(default)
+model ImageVariant {
+  uuid      String           @id @default(uuid())
+  imageUuid String           @map("image_uuid")
+  image     Image            @relation(fields: [imageUuid], references: [uuid], onDelete: Cascade)
+  bucket    String           @db.VarChar(128)
+  imageName String           @map("image_name") @db.VarChar(512)
+  prefix    String?          @db.VarChar(256)
+  kind      ImageVariantKind
+  format    ImageFormat
+  mimeType  String           @map("mime_type") @db.VarChar(64)
+  width     Int?
+  height    Int?
+  sizeBytes BigInt?          @map("size_bytes")
+  etag      String?          @db.VarChar(128)
+  profile   String?          @db.VarChar(64)
 
-  @@map("icon_images")
-}
-
-model PageImage {
-  uuid          String        @id
-  imageName     String
-  bucket        String
-  blockUuid     String        @map("block_id")
-  block         PageBlock     @relation(fields: [blockUuid], references: [uuid], onDelete: Cascade)
-  widthPx       Int           @default(0)
-  heightPx      Int           @default(0)
-  motionVariant MotionVariant @default(none)
-  position      Position      @default(main)
-  color         UiColorToken  @default(default)
-
-  @@map("page_images") // TypeORM previously had 'images' here but it conflicts with MediaImage. Assuming this was an oversight since both would clash in PostgreSQL 'public' schema
+  @@unique([bucket, imageName], map: "uniq_bucket_key")
+  @@index([kind], map: "idx_variant_kind")
+  @@index([imageUuid], map: "idx_variant_image")
+  @@map("image_variants")
 }
 
 model SeoObject {

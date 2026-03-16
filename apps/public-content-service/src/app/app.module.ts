@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { ContentPrismaModule } from '@app/prisma-content';
+import { PageModule } from '../page/page.module';
 import { CommonModule } from '@app/common';
 import { JwtStrategyModule } from '@app/common/strategy/jwt-stratedy.module';
 import { PassportModule } from '@nestjs/passport';
 
 @Module({
   imports: [
+    ContentPrismaModule,
     PassportModule,
     // HttpModule,
     CommonModule,

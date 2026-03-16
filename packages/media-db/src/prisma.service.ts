@@ -4,19 +4,19 @@ import { PrismaPg } from '@prisma/adapter-pg';
 import { PrismaClient } from './generated/prisma/client';
 
 @Injectable()
-export class UsersPrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
+export class MediaPrismaService extends PrismaClient implements OnModuleInit, OnModuleDestroy {
   constructor(configService: ConfigService) {
-    const dbUser = configService.get<string>('DB_USERNAME_USER');
-    const dbPassword = configService.get<string>('DB_PASSWORD_USER');
+    const dbUser = configService.get<string>('DB_USERNAME_MEDIA');
+    const dbPassword = configService.get<string>('DB_PASSWORD_MEDIA');
     const dbHost = configService.get<string>('DB_HOST');
     const dbPort = configService.get<string>('DB_PORT');
-    const dbName = configService.get<string>('DB_NAME_USER');
+    const dbName = configService.get<string>('DB_NAME_MEDIA');
 
-    if (!dbUser) throw new Error('DB_USERNAME_USER is missing');
-    if (!dbPassword) throw new Error('DB_PASSWORD_USER is missing');
+    if (!dbUser) throw new Error('DB_USERNAME_MEDIA is missing');
+    if (!dbPassword) throw new Error('DB_PASSWORD_MEDIA is missing');
     if (!dbHost) throw new Error('DB_HOST is missing');
     if (!dbPort) throw new Error('DB_PORT is missing');
-    if (!dbName) throw new Error('DB_NAME_USER is missing');
+    if (!dbName) throw new Error('DB_NAME_MEDIA is missing');
 
     const connectionString =
       `postgresql://${dbUser}:` + `${dbPassword}@` + `${dbHost}:${dbPort}/` + `${dbName}?schema=public`;

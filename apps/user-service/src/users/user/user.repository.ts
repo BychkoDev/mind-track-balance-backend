@@ -1,5 +1,5 @@
 import { Injectable } from '@nestjs/common';
-import { UsersPrismaService, User, Locale } from '@app/prisma-users';
+import { UsersPrismaService, User, Locale, UserGender } from '@app/prisma-users';
 
 @Injectable()
 export class UserRepository {
@@ -20,7 +20,28 @@ export class UserRepository {
     });
   }
 
+  async findById(uuid: string): Promise<User | null> {
+    return this.prisma.user.findUnique({
+      where: { uuid },
+    });
+  }
+
   async updateSettings(uuid: string, data: { timezone?: string; locale?: Locale }) {
+    return this.prisma.user.update({
+      where: { uuid },
+      data,
+    });
+  }
+
+  async updateProfile(
+    uuid: string,
+    data: {
+      firstname?: string;
+      surname?: string;
+      about?: string;
+      gender?: UserGender;
+    },
+  ) {
     return this.prisma.user.update({
       where: { uuid },
       data,

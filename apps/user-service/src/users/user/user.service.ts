@@ -4,6 +4,7 @@ import { ClientKafka } from '@nestjs/microservices';
 import { UserCreatedEvent } from './events/user-create.event';
 import { KAFKA_SERVICE } from '../../kafka/user-kafka.module';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 
 @Injectable()
 export class UserService {
@@ -33,10 +34,23 @@ export class UserService {
     });
   }
 
+  async getProfile(uuid: string) {
+    return await this.repository.findById(uuid);
+  }
+
   async updateSettings(uuid: string, dto: UpdateSettingsDto) {
     return await this.repository.updateSettings(uuid, {
       timezone: dto.timezone,
       locale: dto.locale,
+    });
+  }
+
+  async updateProfile(uuid: string, dto: UpdateProfileDto) {
+    return await this.repository.updateProfile(uuid, {
+      firstname: dto.firstname,
+      surname: dto.surname,
+      about: dto.about,
+      gender: dto.gender,
     });
   }
 }

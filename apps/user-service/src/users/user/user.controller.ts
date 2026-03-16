@@ -7,6 +7,7 @@ import { EventPattern, Payload } from '@nestjs/microservices';
 
 import { UserCreatedEvent } from './events/user-create.event';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
+import { UpdateProfileDto } from './dto/update-profile.dto';
 import { UserService } from './user.service';
 
 @Controller('/api/v1/user')
@@ -15,8 +16,10 @@ export class UserController {
   @Get('me')
   @Roles(Role.User, Role.Admin)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  getProfile() {
-    return { message: 'This is your profile data from User Service!' };
+  async getProfile(@Req() req: { user: { sub: string } }) {
+    const userUuid = req.user.sub;
+    const profile = await this.userService.getProfile(userUuid);
+    return profile || { message: 'Profile not found' };
   }
 
   @Patch('settings')
@@ -26,6 +29,15 @@ export class UserController {
   async updateSettings(@Req() req: { user: { sub: string } }, @Body() updateSettingsDto: UpdateSettingsDto) {
     const userUuid = req.user.sub;
     return await this.userService.updateSettings(userUuid, updateSettingsDto);
+  }
+
+  @Patch('profile')
+  @Roles(Role.User, Role.Admin)
+  @UseGuards(AuthGuard('jwt'), RolesGuard)
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async updateProfile(@Req() req: { user: { sub: string } }, @Body() updateProfileDto: UpdateProfileDto) {
+    const userUuid = req.user.sub;
+    return await this.userService.updateProfile(userUuid, updateProfileDto);
   }
 
   @EventPattern('user_created')
