@@ -14,24 +14,34 @@ export class UserService {
   ) {}
 
   async handleUserCreated(data: UserCreatedEvent) {
-    console.log('!!!!!!!!!!!!!!!!!!!!!!!!! ------ Received a new user_created event:', data);
-
     try {
       await this.repository.createUserProfile({
         uuid: data.uuid,
         email: data.email,
-        firstname: data.name,
+        fullName: data.fullName,
+        avatarUrl: data.avatarUrl,
+        active: data.active,
+        role: data.role,
+        createdAt: data.createdAt,
       });
       console.log(`Profile created successfully for ${data.email}`);
     } catch (error) {
       console.error(`Failed to create profile for ${data.email}`, String(error));
     }
 
-    this.kafkaClient.emit('send_welcome_mail', {
-      to: data.email,
-      email: data.email,
-      serviceCodeUUID: data.serviceCodeUUID,
-    });
+    if (data.serviceCodeUUID) {
+      this.kafkaClient.emit('send_activation_mail', {
+        to: data.email,
+        name: data.fullName,
+        uuid: data.serviceCodeUUID,
+      });
+    } else {
+      this.kafkaClient.emit('send_welcome_mail', {
+        to: data.email,
+        name: data.fullName,
+        uuid: data.uuid,
+      });
+    }
   }
 
   async getProfile(uuid: string) {
@@ -47,8 +57,7 @@ export class UserService {
 
   async updateProfile(uuid: string, dto: UpdateProfileDto) {
     return await this.repository.updateProfile(uuid, {
-      firstname: dto.firstname,
-      surname: dto.surname,
+      fullName: dto.fullName,
       about: dto.about,
       gender: dto.gender,
     });

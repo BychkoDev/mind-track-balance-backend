@@ -32,9 +32,30 @@ export class AuthUserService {
     this.kafkaClient.emit('user_created', {
       uuid: user.uuid,
       email: user.email,
-      name: signupDto.name,
+      fullName: signupDto.fullName,
       serviceCodeUUID: user.serviceCodeUUID,
+      active: user.active,
+      role: user.role,
+      createdAt: user.createdAt,
     });
+  }
+
+  async createSocialUser(data: { email: string; fullName: string; avatarUrl?: string }) {
+    const userUUID = uuidv4();
+    const user = await this.repository.createUser(userUUID, data.email, null, true, null, Role.USER);
+
+    this.kafkaClient.emit('user_created', {
+      uuid: user.uuid,
+      email: user.email,
+      fullName: data.fullName,
+      avatarUrl: data.avatarUrl,
+      serviceCodeUUID: user.serviceCodeUUID,
+      active: user.active,
+      role: user.role,
+      createdAt: user.createdAt,
+    });
+
+    return user;
   }
 
   async validateUser(email: string, password: string): Promise<AuthUser> {
@@ -45,7 +66,7 @@ export class AuthUserService {
     if (!user.active) {
       throw new UnauthorizedException('Акаунт не активовано');
     }
-    if (await bcrypt.compare(password, user.password)) {
+    if (user.password && (await bcrypt.compare(password, user.password))) {
       return user;
     }
     throw new UnauthorizedException('Не вірний логін або пароль');
@@ -53,6 +74,10 @@ export class AuthUserService {
 
   async findUserByUuid(uuid: string) {
     return await this.repository.findOneByUuid(uuid);
+  }
+
+  async findOneByEmail(email: string) {
+    return await this.repository.findOneByEmail(email);
   }
 
   async saveUser(user: AuthUser): Promise<AuthUser> {

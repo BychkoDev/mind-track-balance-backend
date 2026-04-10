@@ -1,16 +1,11 @@
 import { IsEnum, IsOptional, IsString, MaxLength } from 'class-validator';
-import { UserGender } from '../user-gender.enum';
+import { UserGender } from '../../../../../../packages/users-db/src/generated/prisma/enums';
 
 export class UpdateProfileDto {
   @IsOptional()
   @IsString()
-  @MaxLength(50)
-  firstname?: string;
-
-  @IsOptional()
-  @IsString()
-  @MaxLength(50)
-  surname?: string;
+  @MaxLength(100)
+  fullName?: string;
 
   @IsOptional()
   @IsString()

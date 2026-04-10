@@ -36,17 +36,35 @@ export class MailService implements OnModuleInit {
     this.logger.log(`Sending welcome email to ${event.to}`);
     try {
       await this.mailerService.sendMail({
-      to: event.to,
-      subject: 'Вітаємо у MindTrack Balance!',
-      template: 'welcome',
-      context: {
-        name: event.name,
-        code: event.code,
-      },
-    });
-    this.logger.log(`✅ Welcome email successfully sent to ${event.to}`);
+        to: event.to,
+        subject: 'Вітаємо у MindTrack Balance!',
+        template: 'welcome',
+        context: {
+          name: event.name,
+        },
+      });
+      this.logger.log(`✅ Welcome email successfully sent to ${event.to}`);
     } catch (e: any) {
       this.logger.error(`❌ Failed to send welcome email to ${event.to}: ${e.message}`);
+    }
+  }
+
+  @EventPattern('send_activation_mail')
+  async sendActivationEmail(@Payload() event: SendUserEmailEvent) {
+    this.logger.log(`Sending activation email to ${event.to}`);
+    try {
+      await this.mailerService.sendMail({
+        to: event.to,
+        subject: 'Активація облікового запису MindTrack Balance',
+        template: 'activation',
+        context: {
+          name: event.name,
+          code: event.uuid,
+        },
+      });
+      this.logger.log(`✅ Activation email successfully sent to ${event.to}`);
+    } catch (e: any) {
+      this.logger.error(`❌ Failed to send activation email to ${event.to}: ${e.message}`);
     }
   }
 

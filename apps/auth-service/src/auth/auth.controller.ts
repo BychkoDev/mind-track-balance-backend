@@ -15,6 +15,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { AuthService } from './auth.service';
 import { LoginDto } from './dto/login.dto';
 import { SignupDto } from './dto/signup.dto';
+import { LoginByGoogleDto } from './dto/login-by-google.dto';
 
 @Controller('/api/v1/auth')
 export class AuthController {
@@ -36,6 +37,13 @@ export class AuthController {
     } catch {
       throw new InternalServerErrorException('Internal error during signup');
     }
+  }
+
+  @Post('/google')
+  @HttpCode(HttpStatus.OK)
+  @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
+  async googleSignIn(@Body() loginByGoogleDto: LoginByGoogleDto) {
+    return await this.authService.loginByGoogle(loginByGoogleDto);
   }
 
   @Post('/refresh')

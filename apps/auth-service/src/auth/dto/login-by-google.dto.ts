@@ -1,13 +1,11 @@
-import { IsEmail, IsHexadecimal, IsIn, IsString, Length } from 'class-validator';
+import { IsHexadecimal, IsIn, IsString, Length, MinLength, MaxLength } from 'class-validator';
 import { ClientKind } from '../client-kind.enum';
 
-export class LoginDto {
-  @IsEmail({}, { message: 'Email address required' })
-  readonly email: string;
-
-  @IsString({ message: 'Password must be a string' })
-  @Length(8, 72, { message: 'Password must be between 8 and 72 characters' })
-  readonly password: string;
+export class LoginByGoogleDto {
+  @IsString()
+  @MinLength(100)
+  @MaxLength(4096)
+  googleToken: string;
 
   @IsString({ message: 'Password must be a string' })
   @IsHexadecimal({ message: 'Device ID must be hexadecimal' })

@@ -19,15 +19,15 @@ enum UserGender {
 }
 
 enum Locale {
-  en
-  uk
+  EN @map("en")
+  UK @map("uk")
 }
 
 model User {
   uuid      String   @id @default(uuid())
   email     String   @unique
-  firstname String?
-  surname   String?
+  fullName  String?  @map("full_name")
+  avatarUrl String?  @map("avatar_url")
   role      Role     @default(USER)
   active    Boolean
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
@@ -40,16 +40,15 @@ model User {
   userIp            String     @map("user_ip")
   lastVisit         DateTime?  @map("last_visit")
   timezone          String     @default("Europe/Kiev")
-  locale            Locale     @default(uk)
+  locale            Locale     @default(UK)
   @@map("users")
 }
 
 model AdminUser {
   uuid      String   @id @default(uuid())
   email     String   @unique
-  firstname String?
-  surname   String?
-  role      Role     @default(USER)
+  fullName  String?  @map("full_name")
+  role      Role     @default(ADMIN)
   active    Boolean
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamptz
 

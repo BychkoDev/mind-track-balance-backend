@@ -8,6 +8,7 @@ export class RsaKeyService implements OnModuleInit {
   private readonly logger = new Logger(RsaKeyService.name);
   private publicKey: string;
   private privateKey: string;
+  private kid: string;
 
   constructor(private readonly repository: RsaKeyRepository) {}
 
@@ -26,6 +27,7 @@ export class RsaKeyService implements OnModuleInit {
       this.logger.log('RSA keys found in database.');
       this.publicKey = keyFromDb.publicKey;
       this.privateKey = keyFromDb.privateKey;
+      this.kid = keyFromDb.uuid;
     } else {
       this.logger.log('No RSA keys found. Generating a new pair...');
       await this._generateAndSaveKeys();
@@ -57,6 +59,7 @@ export class RsaKeyService implements OnModuleInit {
       dateOfRevoked,
     );
     this.logger.log('New RSA key pair has been generated and saved.');
+    this.kid = newKey.uuid;
     return newKey;
   }
 
@@ -66,5 +69,9 @@ export class RsaKeyService implements OnModuleInit {
 
   getPrivateKey(): string {
     return this.privateKey;
+  }
+
+  getKid(): string {
+    return this.kid;
   }
 }

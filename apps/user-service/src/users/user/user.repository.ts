@@ -1,22 +1,35 @@
 import { Injectable } from '@nestjs/common';
-import { UsersPrismaService, User, Locale, UserGender } from '@app/prisma-users';
+import { UsersPrismaService, User, Locale, UserGender, Role } from '@app/prisma-users';
 
 @Injectable()
 export class UserRepository {
   constructor(private readonly prisma: UsersPrismaService) {}
 
-  async createUserProfile(data: { uuid: string; email: string; firstname?: string }): Promise<User> {
+  async createUserProfile(data: {
+    uuid: string;
+    email: string;
+    fullName?: string;
+    avatarUrl?: string;
+    active: boolean;
+    role: Role;
+    createdAt: Date;
+  }): Promise<User> {
+    const login = data.email.split('@')[0];
     return this.prisma.user.create({
       data: {
         uuid: data.uuid,
         email: data.email,
-        firstname: data.firstname,
-        login: data.email.split('@')[0],
+        fullName: data.fullName,
+        avatarUrl: data.avatarUrl,
+        login: login,
         about: '',
         vip: false,
         vipExpirationDate: new Date(),
-        userIp: '0.0.0.0', 
-        active: true,
+        userIp: '0.0.0.0',
+        active: data.active,
+        role: data.role,
+        createdAt: data.createdAt,
+      },
     });
   }
 
@@ -36,8 +49,7 @@ export class UserRepository {
   async updateProfile(
     uuid: string,
     data: {
-      firstname?: string;
-      surname?: string;
+      fullName?: string;
       about?: string;
       gender?: UserGender;
     },

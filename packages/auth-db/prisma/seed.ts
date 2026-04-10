@@ -4,10 +4,7 @@ import { PrismaClient } from '../src/generated/prisma/client';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 dotenv.config({
-  path: resolve(
-    process.cwd(),
-    process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev',
-  ),
+  path: resolve(process.cwd(), process.env.NODE_ENV === 'production' ? '.env.prod' : '.env.dev'),
 });
 
 const connectionString =
@@ -58,7 +55,7 @@ main()
   .then(async () => {
     await prisma.$disconnect();
   })
-  .catch(async (e) => {
+  .catch(async e => {
     console.error(e);
     await prisma.$disconnect();
     process.exit(1);

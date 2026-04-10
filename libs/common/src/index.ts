@@ -4,4 +4,3 @@ export * from './strategy/jwt-stratedy.module';
 export * from './strategy/jwt.strategy';
 export * from './guards/roles.guard';
 export * from './decorators/roles.decorator';
-export * from './enums/role.enum';

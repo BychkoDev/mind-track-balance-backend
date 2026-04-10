@@ -9,7 +9,7 @@ export class AuthUserRepository {
   async createUser(
     uuid: string,
     email: string,
-    password: string,
+    password: string | null,
     active: boolean,
     serviceCodeUUID: string | null,
     role: Role,
@@ -22,13 +22,7 @@ export class AuthUserRepository {
         active,
         serviceCodeUUID,
         role,
-        jwtRefreshToken: {
-          create: {}
-        }
       },
-      include: {
-        jwtRefreshToken: true
-      }
     });
   }
 
@@ -54,12 +48,16 @@ export class AuthUserRepository {
   }
 
   async upsertRefreshToken(userUuid: string, data: Omit<Partial<AuthUserJwtRefreshToken>, 'userUuid' | 'uuid'>) {
+    const { deviceId, jwtRefreshToken, deletionTime, clientKind } = data;
     return await this.prisma.authUserJwtRefreshToken.upsert({
       where: { userUuid },
       update: data,
       create: {
         userUuid,
-        ...data,
+        deviceId: deviceId || 'unknown',
+        jwtRefreshToken,
+        deletionTime,
+        clientKind,
       },
     });
   }
