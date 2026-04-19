@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { MindTrackRepository } from './mind-track.repository';
-import { CreateEntryDto } from './dto/create-entry.dto';
+import { CreateEmotionLogDto } from './dto/create-emotion-log.dto';
 import { UpdateEntryDto } from './dto/update-entry.dto';
 import { AiService } from '../ai/ai.service';
 
@@ -13,32 +13,25 @@ export class MindTrackService {
     private readonly aiService: AiService,
   ) {}
 
-  async createEntry(userUuid: string, dto: CreateEntryDto) {
+  async createEntry(userUuid: string, dto: CreateEmotionLogDto) {
     const entry = await this.repository.createEntry(userUuid, dto);
 
-    if (dto.text && dto.text.trim().length > 0) {
-      this.analyzeAndSave(entry.uuid, userUuid, dto.text).catch((err) =>
-        this.logger.error('Background AI analysis failed', err),
-      );
-    }
+    // Let the AI analyze the full entry context (metrics + optional text)
+    this.analyzeAndSave(entry, userUuid).catch((err) =>
+      this.logger.error('Background AI analysis failed', err),
+    );
 
     return entry;
   }
 
-  private async analyzeAndSave(
-    entryUuid: string,
-    userUuid: string,
-    text: string,
-  ) {
-    this.logger.log(`Starting AI analysis for entry ${entryUuid}`);
-    const result = await this.aiService.analyzeText(text);
+  private async analyzeAndSave(entry: any, userUuid: string) {
+    this.logger.log(`Starting AI analysis for entry ${entry.uuid}`);
+    const result = await this.aiService.analyzeEntry(entry);
 
     if (result) {
-      this.logger.log(
-        `AI Analysis complete for ${entryUuid}. Sentiment: ${result.sentiment}`,
-      );
-      
-      await this.repository.updateEntry(entryUuid, userUuid, {
+      this.logger.log(`AI Analysis complete for ${entry.uuid}. Sentiment: ${result.sentiment}`);
+
+      await this.repository.updateEntry(entry.uuid, userUuid, {
         aiSentiment: result.sentiment,
         aiTopics: result.topics,
       } as any);

@@ -7,16 +7,30 @@ datasource db {
   provider = "postgresql"
 }
 
+enum EmotionLogContext {
+  WORK     @map("work")
+  STUDY    @map("study")
+  FATIGUE  @map("fatigue")
+  REST     @map("rest")
+  SOCIAL   @map("social")
+  EXERCISE @map("exercise")
+}
+
 model MindTrackEntry {
-  uuid        String   @id @default(uuid())
-  userUuid    String   @map("user_uuid")
-  user        User     @relation(fields: [userUuid], references: [uuid], onDelete: Cascade)
-  moodScore   Int // e.g. 1 to 5, or 1 to 10
-  text        String?  @db.Text
-  aiSentiment String?  @map("ai_sentiment") // Results from AI analysis
-  aiTopics    String[] @map("ai_topics") // e.g. ["work", "anxiety"]
-  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
-  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+  uuid            String                @id @default(uuid())
+  userUuid        String                @map("user_uuid")
+  mood            Int // e.g. 1 to 5
+  stressLevel     Int?                  @map("stress_level")
+  energy          Int?
+  anxiety         Int?
+  focus           Int?
+  recoveryFeeling Int?                  @map("recovery_feeling")
+  contexts        EmotionLogContext[]
+  description     String?               @db.Text
+  aiSentiment     String?               @map("ai_sentiment")
+  aiTopics        String[]              @map("ai_topics")
+  createdAt       DateTime              @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt       DateTime              @updatedAt @map("updated_at") @db.Timestamptz
 
   tags MindTrackTag[]
 
@@ -28,7 +42,6 @@ model MindTrackTag {
   uuid     String @id @default(uuid())
   name     String
   userUuid String @map("user_uuid") // User's custom tags
-  user     User   @relation(fields: [userUuid], references: [uuid], onDelete: Cascade)
 
   entries MindTrackEntry[]
 
@@ -39,12 +52,23 @@ model MindTrackTag {
 model MindTrackAdvice {
   uuid          String   @id @default(uuid())
   userUuid      String   @map("user_uuid")
-  user          User     @relation(fields: [userUuid], references: [uuid], onDelete: Cascade)
   content       String   @db.Text
-  relatedTopics String[] @map("related_topics") // e.g. ["anxiety", "work"]
+  relatedTopics String[] @map("related_topics")
   isRead        Boolean  @default(false) @map("is_read")
   createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
 
   @@map("mind_track_advices")
   @@index([userUuid, createdAt])
+}
+
+model PromptTemplate {
+  uuid         String   @id @default(uuid())
+  code         String   @unique
+  systemPrompt String?  @map("system_prompt") @db.Text
+  userPrompt   String?  @map("user_prompt") @db.Text
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt    DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@map("prompt_templates")
 }

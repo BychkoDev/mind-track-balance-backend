@@ -80,13 +80,15 @@ export class AuthService implements OnModuleInit {
     const avatarUrl = googleUser.picture;
 
     let user = await this.authUserService.findOneByEmail(email);
-
+    let newUser = false;
     if (!user) {
+      newUser = true;
       user = (await this.authUserService.createSocialUser({
         email,
         fullName,
         avatarUrl,
       })) as any;
+      newUser = true;
     }
 
     if (!user) {
@@ -109,14 +111,16 @@ export class AuthService implements OnModuleInit {
 
     return {
       ...tokens,
-      user: {
-        uuid: user.uuid,
-        email: user.email,
-        fullName,
-        login: email.split('@')[0],
-        avatarUrl,
-        role: user.role,
-      },
+      ...(newUser && {
+        user: {
+          uuid: user.uuid,
+          email: user.email,
+          fullName,
+          login: email.split('@')[0],
+          avatarUrl,
+          role: user.role,
+        },
+      }),
     };
   }
 

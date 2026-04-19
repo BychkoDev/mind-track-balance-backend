@@ -1,0 +1,20 @@
+{
+"name": "@mind-track/media-db",
+"version": "1.0.0",
+"private": true,
+"main": "src/index.js",
+"types": "src/index.d.ts",
+"scripts": {
+"generate": "prisma generate --schema=./prisma/schema.prisma",
+"migrate:dev": "prisma migrate dev --schema=./prisma/schema.prisma",
+"migrate:deploy": "prisma migrate deploy --schema=./prisma/schema.prisma"
+},
+"dependencies": {
+"@prisma/client": "^7.7.0",
+"@prisma/adapter-pg": "^7.5.0",
+"pg": "^8.20.0"
+},
+"devDependencies": {
+"prisma": "^7.7.0"
+}
+}

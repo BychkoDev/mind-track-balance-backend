@@ -1,0 +1,23 @@
+{
+  "name": "@mind-track/auth-db",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "src/index.js",
+  "types": "src/index.d.ts",
+  "scripts": {
+    "generate": "prisma generate --schema=./prisma/schema.prisma",
+    "migrate:dev": "prisma migrate dev --schema=./prisma/schema.prisma",
+    "migrate:deploy": "prisma migrate deploy --schema=./prisma/schema.prisma",
+    "seed": "NODE_OPTIONS='--loader ts-node/esm --no-warnings' ts-node ./prisma/seed.ts"
+  },
+  "dependencies": {
+    "@prisma/client": "^7.7.0",
+    "@prisma/adapter-pg": "^7.5.0",
+    "pg": "^8.20.0"
+  },
+  "devDependencies": {
+    "prisma": "^7.7.0",
+    "ts-node": "^10.9.2"
+  }
+}

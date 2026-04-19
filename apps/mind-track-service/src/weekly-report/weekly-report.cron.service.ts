@@ -1,6 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
-import { PrismaService } from '@app/common';
+import { MindTrackPrismaService } from '@app/prisma-mind-track';
 import { WeeklyReportService } from './weekly-report.service';
 
 @Injectable()
@@ -8,7 +8,7 @@ export class WeeklyReportCronService {
   private readonly logger = new Logger(WeeklyReportCronService.name);
 
   constructor(
-    private readonly prisma: PrismaService,
+    private readonly prisma: MindTrackPrismaService,
     private readonly reportService: WeeklyReportService,
   ) {}
 

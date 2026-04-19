@@ -1,6 +1,6 @@
 import * as dotenv from 'dotenv';
 import { resolve } from 'node:path';
-import { PrismaClient } from '../src/generated/prisma/client';
+import { PrismaClient } from '../src/generated/prisma/client.js';
 import { PrismaPg } from '@prisma/adapter-pg';
 
 dotenv.config({
@@ -8,10 +8,11 @@ dotenv.config({
 });
 
 const connectionString =
+  process.env.DATABASE_URL ||
   `postgresql://${process.env.DB_USERNAME_USER}:` +
-  `${process.env.DB_PASSWORD_USER}@` +
-  `${process.env.DB_HOST}:${process.env.DB_PORT}/` +
-  `${process.env.DB_NAME_USER}?schema=public`;
+    `${process.env.DB_PASSWORD_USER}@` +
+    `${process.env.DB_HOST}:${process.env.DB_PORT}/` +
+    `${process.env.DB_NAME_USER}?schema=public`;
 
 const prisma = new PrismaClient({
   adapter: new PrismaPg({

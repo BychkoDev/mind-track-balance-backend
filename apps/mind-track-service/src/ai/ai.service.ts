@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI } from '@google/generative-ai';
-import { PrismaService } from '@app/common';
+import { MindTrackPrismaService } from '@app/prisma-mind-track';
 
 const FALLBACK_SYSTEM_PROMPT = `You are an expert psychotherapist analyzing a journal entry. 
 Your task is to analyze the text and return exactly a JSON object without any markdown wrapping (no \`\`\`json) and no conversational filler.
@@ -20,23 +20,19 @@ export class AiService {
 
   constructor(
     private readonly configService: ConfigService,
-    private readonly prisma: PrismaService,
+    private readonly prisma: MindTrackPrismaService,
   ) {
     const apiKey = this.configService.get<string>('GEMINI_API_KEY');
     if (apiKey) {
       this.genAI = new GoogleGenerativeAI(apiKey);
       this.logger.log('Gemini AI Service initialized successfully.');
     } else {
-      this.logger.warn(
-        'GEMINI_API_KEY is missing. AI analysis will be skipped.',
-      );
+      this.logger.warn('GEMINI_API_KEY is missing. AI analysis will be skipped.');
     }
   }
 
-  async analyzeText(
-    text: string,
-  ): Promise<{ sentiment: string; topics: string[] } | null> {
-    if (!this.genAI || !text || text.trim().length === 0) {
+  async analyzeEntry(entry: any): Promise<{ sentiment: string; topics: string[] } | null> {
+    if (!this.genAI) {
       return null;
     }
 
@@ -46,16 +42,16 @@ export class AiService {
       });
 
       const systemInstruction =
-        templateRecord?.isActive && templateRecord.systemPrompt
-          ? templateRecord.systemPrompt
-          : FALLBACK_SYSTEM_PROMPT;
+        templateRecord?.isActive && templateRecord.systemPrompt ? templateRecord.systemPrompt : FALLBACK_SYSTEM_PROMPT;
 
       const userTemplate =
-        templateRecord?.isActive && templateRecord.userPrompt
-          ? templateRecord.userPrompt
-          : FALLBACK_USER_PROMPT;
+        templateRecord?.isActive && templateRecord.userPrompt ? templateRecord.userPrompt : FALLBACK_USER_PROMPT;
 
-      const prompt = userTemplate.replace('{{text}}', text);
+      const metricsString = `Mood: ${entry.mood}/5 | Stress: ${entry.stressLevel}/5 | Energy: ${entry.energy}/5 | Anxiety: ${entry.anxiety}/5 | Focus: ${entry.focus}/5 | Recovery: ${entry.recoveryFeeling}/5`;
+
+      const prompt = userTemplate
+        .replace('{{metrics}}', metricsString)
+        .replace('{{text}}', entry.description || 'No text provided');
 
       const model = this.genAI.getGenerativeModel({
         model: 'gemini-2.5-flash',
@@ -68,7 +64,7 @@ export class AiService {
       try {
         const cleanText = responseText.replace(/```json\n?|\n?```/gi, '').trim();
         const parsed = JSON.parse(cleanText);
-        
+
         return {
           sentiment: parsed.sentiment || 'NEUTRAL',
           topics: Array.isArray(parsed.topics) ? parsed.topics : [],
@@ -84,10 +80,7 @@ export class AiService {
     }
   }
 
-  async generateCustomJson(
-    prompt: string,
-    systemInstruction: string,
-  ): Promise<any | null> {
+  async generateCustomJson(prompt: string, systemInstruction: string): Promise<any | null> {
     if (!this.genAI || !prompt || prompt.trim().length === 0) {
       return null;
     }

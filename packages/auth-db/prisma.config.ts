@@ -11,10 +11,11 @@ const envPath = resolve(__dirname, '..', '..', process.env.NODE_ENV === 'product
 dotenv.config({ path: envPath });
 
 const DATABASE_URL_AUTH =
+  process.env.DATABASE_URL ||
   `postgresql://${process.env.DB_USERNAME_AUTH}:` +
-  `${process.env.DB_PASSWORD_AUTH}@` +
-  `${process.env.DB_HOST}:${process.env.DB_PORT}/` +
-  `${process.env.DB_NAME_AUTH}?schema=public`;
+    `${process.env.DB_PASSWORD_AUTH}@` +
+    `${process.env.DB_HOST}:${process.env.DB_PORT}/` +
+    `${process.env.DB_NAME_AUTH}?schema=public`;
 
 console.log('prisma.config.ts DATABASE_URL_AUTH =', DATABASE_URL_AUTH);
 

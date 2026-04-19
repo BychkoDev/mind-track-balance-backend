@@ -1,7 +1,7 @@
 import { WeeklyReportRepository } from './weekly-report.repository';
 import { MindTrackRepository } from '../mind-track/mind-track.repository';
 import { AiService } from '../ai/ai.service';
-import { PrismaService } from '@app/common';
+import { MindTrackPrismaService } from '@app/prisma-mind-track';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ClientKafka } from '@nestjs/microservices';
 import * as PDFDocument from 'pdfkit';
@@ -14,7 +14,7 @@ export class WeeklyReportService {
     private readonly repository: WeeklyReportRepository,
     private readonly mindTrackRepository: MindTrackRepository,
     private readonly aiService: AiService,
-    private readonly prisma: PrismaService,
+    private readonly prisma: MindTrackPrismaService,
     @Inject('AUTH_SERVICE') private readonly kafkaClient: ClientKafka,
   ) {}
 
@@ -36,22 +36,25 @@ export class WeeklyReportService {
     }
 
     const totalEntries = weeklyEntries.length;
-    const moodSum = weeklyEntries.reduce((acc, entry) => acc + entry.moodScore, 0);
+    const moodSum = weeklyEntries.reduce((acc, entry) => acc + entry.mood, 0);
     const averageMood = totalEntries > 0 ? moodSum / totalEntries : null;
 
-    const allTopics = weeklyEntries.flatMap(e => e.aiTopics || []);
+    const allTopics = weeklyEntries.flatMap((e) => e.aiTopics || []);
     const topicCounts = allTopics.reduce((acc, topic) => {
       acc[topic] = (acc[topic] || 0) + 1;
       return acc;
     }, {} as Record<string, number>);
-    
+
     const topTopics = Object.entries(topicCounts)
-      .sort((a, b) => b[1] - a[1])
+      .sort((a: [string, number], b: [string, number]) => b[1] - a[1])
       .slice(0, 5)
-      .map(entry => entry[0]);
+      .map((entry) => entry[0]);
 
     const entriesContext = weeklyEntries
-      .map((e) => `[${e.createdAt.toISOString()}] Mood: ${e.moodScore}/10 | Sentiment: ${e.aiSentiment} | Text: ${e.text || 'N/A'}`)
+      .map(
+        (e) =>
+          `[${e.createdAt.toISOString()}] Mood: ${e.mood}/5 | Stress: ${e.stressLevel}/5 | Energy: ${e.energy}/5 | Anxiety: ${e.anxiety}/5 | Focus: ${e.focus}/5 | Recovery: ${e.recoveryFeeling}/5 | Sentiment: ${e.aiSentiment} | Description: ${e.description || 'N/A'}`,
+      )
       .join('\n');
 
     const templateRecord = await (this.prisma as any).promptTemplate.findUnique({

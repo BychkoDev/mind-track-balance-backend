@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@app/common';
-import { CreateEntryDto } from './dto/create-entry.dto';
+import { MindTrackPrismaService } from '@app/prisma-mind-track';
+import { CreateEmotionLogDto } from './dto/create-emotion-log.dto';
 import { UpdateEntryDto } from './dto/update-entry.dto';
 
 @Injectable()
 export class MindTrackRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: MindTrackPrismaService) {}
 
-  async createEntry(userUuid: string, dto: CreateEntryDto) {
+  async createEntry(userUuid: string, dto: CreateEmotionLogDto) {
     const { tags, ...rest } = dto;
 
     return await this.prisma.mindTrackEntry.create({

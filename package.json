@@ -9,7 +9,7 @@
     "build:all": "concurrently \"nest build auth-service\" \"nest build user-service\" \"nest build public-content-service\" \"nest build media-service\"",
     "prisma:migrate:auth": "cross-env NODE_ENV=development prisma migrate dev --schema=packages/auth-db/prisma/schema.prisma",
     "seed:auth": "cross-env NODE_ENV=development ts-node packages/auth-db/prisma/seed.ts",
-    "build:auth": "cross-env NODE_ENV=production nest build auth-service && tsc-alias -p apps/auth-service/tsconfig.build.json",
+    "build:auth-service": "cross-env NODE_ENV=production nest build auth-service && tsc-alias -p apps/auth-service/tsconfig.build.json",
     "start:auth": "nest start auth-service --watch",
     "start:dev:auth": "nest start auth-service --watch",
     "start:debug:auth": "cross-env NODE_ENV=development ts-node-dev --inspect-brk -r tsconfig-paths/register apps/auth-service/src/main.ts",
@@ -19,7 +19,7 @@
     "start:debug:public": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register apps/public-content-service/src/main.ts",
     "prisma:migrate:users": "cross-env NODE_ENV=development prisma migrate dev --schema=packages/users-db/prisma/schema.prisma",
     "seed:users": "cross-env NODE_ENV=development ts-node packages/users-db/prisma/seed.ts",
-    "build:user": "nest build user-service",
+    "build:user-service": "nest build user-service",
     "start:user": "nest start user-service --watch",
     "start:dev:user": "nest start user-service --watch",
     "start:debug:user": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register apps/user-service/src/main.ts",
@@ -31,6 +31,8 @@
     "start:mind-track": "nest start mind-track-service --watch",
     "start:dev:mind-track": "nest start mind-track-service --watch",
     "start:debug:mind-track": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register apps/mind-track-service/src/main.ts",
+    "prisma:migrate:mind-track": "cross-env NODE_ENV=development prisma migrate dev --schema=packages/mind-track-db/prisma/schema.prisma",
+    "seed:mind-track": "cross-env NODE_ENV=development ts-node packages/mind-track-db/prisma/seed.ts",
     "build:attention": "nest build attention-service",
     "start:attention": "nest start attention-service --watch",
     "start:dev:attention": "nest start attention-service --watch",
@@ -61,7 +63,6 @@
     "@nestjs/passport": "^11.0.5",
     "@nestjs/platform-express": "^11.1.8",
     "@nestjs/schedule": "^6.1.1",
-    "@prisma/adapter-pg": "^7.5.0",
     "@types/pdfkit": "^0.17.5",
     "axios": "^1.12.2",
     "bcryptjs": "^3.0.2",
@@ -92,7 +93,6 @@
     "@nestjs/cli": "^11.0.10",
     "@nestjs/schematics": "^11.0.9",
     "@nestjs/testing": "^11.1.8",
-    "@prisma/client": "^7.5.0",
     "@types/express": "^5.0.4",
     "@types/jest": "^30.0.0",
     "@types/multer": "^2.0.0",
@@ -108,10 +108,10 @@
     "globals": "^16.4.0",
     "jest": "^30.2.0",
     "prettier": "^3.6.2",
-    "prisma": "^7.5.0",
     "source-map-support": "^0.5.21",
     "supertest": "^7.1.4",
     "ts-jest": "^29.4.5",
+    "ts-loader": "^9.5.7",
     "ts-node": "^10.9.2",
     "ts-node-dev": "^2.0.0",
     "tsc-alias": "^1.8.16",
@@ -144,5 +144,9 @@
     "moduleNameMapper": {
       "^@app/common(|/.*)$": "<rootDir>/libs/common/src/$1"
     }
-  }
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ]
 }

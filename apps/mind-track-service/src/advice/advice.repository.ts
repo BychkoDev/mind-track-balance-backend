@@ -1,9 +1,9 @@
 import { Injectable } from '@nestjs/common';
-import { PrismaService } from '@app/common';
+import { MindTrackPrismaService } from '@app/prisma-mind-track';
 
 @Injectable()
 export class AdviceRepository {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: MindTrackPrismaService) {}
 
   async createAdvice(
     userUuid: string,

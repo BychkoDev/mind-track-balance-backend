@@ -1,7 +1,7 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { Cron, CronExpression } from '@nestjs/schedule';
 import { AdviceService } from './advice.service';
-import { PrismaService } from '@app/common';
+import { MindTrackPrismaService } from '@app/prisma-mind-track';
 
 @Injectable()
 export class AdviceCronService {
@@ -9,7 +9,7 @@ export class AdviceCronService {
 
   constructor(
     private readonly adviceService: AdviceService,
-    private readonly prisma: PrismaService,
+    private readonly prisma: MindTrackPrismaService,
   ) {}
 
   // Run every day at 8:00 AM
@@ -23,28 +23,25 @@ export class AdviceCronService {
       const sevenDaysAgo = new Date();
       sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
 
-      const activeUsers = await this.prisma.user.findMany({
+      const activeUsers = await this.prisma.mindTrackEntry.findMany({
         where: {
-          mindTrackEntries: {
-            some: {
-              createdAt: {
-                gte: sevenDaysAgo,
-              },
-            },
+          createdAt: {
+            gte: sevenDaysAgo,
           },
         },
-        select: { uuid: true },
+        select: { userUuid: true },
+        distinct: ['userUuid'],
       });
 
       this.logger.log(`Found ${activeUsers.length} active users for advice generation.`);
 
-      for (const user of activeUsers) {
+      for (const entry of activeUsers) {
         try {
           // Delay briefly to avoid hitting rate limits on Gemini
           await new Promise((resolve) => setTimeout(resolve, 2000));
-          await this.adviceService.generateAdviceForUser(user.uuid);
+          await this.adviceService.generateAdviceForUser(entry.userUuid);
         } catch (err) {
-          this.logger.error(`Failed to generate advice for user ${user.uuid} during CRON`, err);
+          this.logger.error(`Failed to generate advice for user ${entry.userUuid} during CRON`, err);
         }
       }
 

@@ -1,42 +1,36 @@
 import { IsInt, IsOptional, IsString, Max, Min, IsArray, IsEnum, MaxLength, ArrayMaxSize } from 'class-validator';
 import { EmotionLogContext } from '@app/prisma-mind-track';
 
-export class UpdateEntryDto {
-  @IsOptional()
+export class CreateEmotionLogDto {
   @IsInt()
   @Min(1)
   @Max(5)
-  mood?: number;
+  mood: number;
 
-  @IsOptional()
   @IsInt()
   @Min(1)
   @Max(5)
-  stressLevel?: number;
+  stressLevel: number;
 
-  @IsOptional()
   @IsInt()
   @Min(1)
   @Max(5)
-  energy?: number;
+  energy: number;
 
-  @IsOptional()
   @IsInt()
   @Min(1)
   @Max(5)
-  anxiety?: number;
+  anxiety: number;
 
-  @IsOptional()
   @IsInt()
   @Min(1)
   @Max(5)
-  focus?: number;
+  focus: number;
 
-  @IsOptional()
   @IsInt()
   @Min(1)
   @Max(5)
-  recoveryFeeling?: number;
+  recoveryFeeling: number;
 
   @IsOptional()
   @IsArray()
@@ -48,20 +42,9 @@ export class UpdateEntryDto {
   @IsString()
   @MaxLength(500)
   description?: string;
-  
+
   @IsOptional()
   @IsArray()
   @IsString({ each: true })
   tags?: string[];
-
-  // Fields for internal AI updates
-  @IsOptional()
-  @IsString()
-  aiSentiment?: string;
-
-  @IsOptional()
-  @IsArray()
-  @IsString({ each: true })
-  aiTopics?: string[];
 }
-

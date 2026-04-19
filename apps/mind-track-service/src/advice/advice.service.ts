@@ -2,7 +2,7 @@ import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { AdviceRepository } from './advice.repository';
 import { MindTrackRepository } from '../mind-track/mind-track.repository';
 import { AiService } from '../ai/ai.service';
-import { PrismaService } from '@app/common';
+import { MindTrackPrismaService } from '@app/prisma-mind-track';
 
 @Injectable()
 export class AdviceService {
@@ -12,7 +12,7 @@ export class AdviceService {
     private readonly repository: AdviceRepository,
     private readonly mindTrackRepository: MindTrackRepository,
     private readonly aiService: AiService,
-    private readonly prisma: PrismaService,
+    private readonly prisma: MindTrackPrismaService,
   ) {}
 
   async getAdvices(userUuid: string) {
@@ -44,7 +44,7 @@ export class AdviceService {
     const entriesContext = last7Entries
       .map(
         (e) =>
-          `Date: ${e.createdAt.toISOString()} | Mood: ${e.moodScore}/10 | Text: ${e.text || 'None'} | Sentiment: ${e.aiSentiment} | Topics: ${e.aiTopics.join(',')}`,
+          `Date: ${e.createdAt.toISOString()} | Mood: ${e.mood}/5 | Stress: ${e.stressLevel}/5 | Energy: ${e.energy}/5 | Anxiety: ${e.anxiety}/5 | Focus: ${e.focus}/5 | Recovery: ${e.recoveryFeeling}/5 | Description: ${e.description || 'None'} | Contexts: ${e.contexts?.join(',') || 'None'} | Sentiment: ${e.aiSentiment} | Topics: ${e.aiTopics.join(',')}`,
       )
       .join('\n---\n');
 

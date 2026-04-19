@@ -8,6 +8,8 @@ import { AiModule } from '../ai/ai.module';
 import { AdviceModule } from '../advice/advice.module';
 import { WeeklyReportModule } from '../weekly-report/weekly-report.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { MindTrackPrismaModule } from '@app/prisma-mind-track';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -19,12 +21,11 @@ import { ScheduleModule } from '@nestjs/schedule';
     AiModule,
     AdviceModule,
     WeeklyReportModule,
+    MindTrackPrismaModule,
     ConfigModule.forRoot({
       isGlobal: true,
       envFilePath:
-        process.env.NODE_ENV === 'production'
-          ? 'apps/mind-track-service/.env.prod'
-          : 'apps/mind-track-service/.env.dev',
+        process.env.NODE_ENV === 'production' ? join(process.cwd(), '.env.prod') : join(process.cwd(), '.env.dev'),
     }),
   ],
 })
