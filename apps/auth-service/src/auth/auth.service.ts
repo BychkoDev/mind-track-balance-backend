@@ -12,7 +12,6 @@ import { ForbiddenException, Inject, Logger, OnModuleInit } from '@nestjs/common
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Cache } from 'cache-manager';
 import { LoginByGoogleDto } from './dto/login-by-google.dto';
-import axios from 'axios';
 
 export interface TokenPayload {
   sub: string;
@@ -126,10 +125,17 @@ export class AuthService implements OnModuleInit {
 
   private async fetchGoogleUserInfo(token: string) {
     try {
-      const response = await axios.get('https://www.googleapis.com/oauth2/v3/userinfo', {
+      const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+        method: 'GET',
         headers: { Authorization: `Bearer ${token}` },
       });
-      return response.data;
+
+      if (!response.ok) {
+        throw new Error(`Google API responded with status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      return data;
     } catch (error) {
       this.logger.error('Google token verification failed', error);
       throw new ForbiddenException('Недійсний токен Google або помилка запиту до Google');

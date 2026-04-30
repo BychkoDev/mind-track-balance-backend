@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { CommonModule } from '@app/common';
-// import {HttpModule} from "@nestjs/axios";
 import { PassportModule } from '@nestjs/passport';
 import { JwtStrategy } from '@app/common/strategy/jwt.strategy';
 import { JwtStrategyModule } from '@app/common/strategy/jwt-stratedy.module';
@@ -17,7 +16,6 @@ const envFilePath =
   imports: [
     UsersPrismaModule,
     PassportModule,
-    // HttpModule,
     CommonModule,
     UserModule,
     AdminUserModule,

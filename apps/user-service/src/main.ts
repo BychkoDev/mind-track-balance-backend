@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app/app.module';
 import { ConfigService } from '@nestjs/config';
@@ -10,13 +11,14 @@ async function bootstrap() {
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT_USER') || 4091;
+  const caPath = configService.get<string>('KAFKA_SSL_CA_PATH');
 
-  // Connecting Kafka microservice
   app.connectMicroservice({
     transport: Transport.KAFKA,
     options: {
       client: {
         brokers: configService.getOrThrow<string>('KAFKA_BROKERS').split(','),
+        ...(caPath ? { ssl: { ca: fs.readFileSync(caPath) } } : {}),
         retry: {
           initialRetryTime: 300,
           retries: 8,
@@ -28,7 +30,6 @@ async function bootstrap() {
     },
   });
 
-  // Start all microservices and the web server (if needed)
   await app.startAllMicroservices();
   await app.listen(port);
 }
