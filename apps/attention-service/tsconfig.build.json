@@ -1,12 +1,8 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "outDir": "../../dist/apps/tsconfig.build.json-service",
-    "rootDir": "../.."
+    "outDir": "../../dist/apps/attention-service"
   },
-  "include": [
-    "src/**/*.ts",
-    "../../libs/**/*.ts"
-  ],
+  "include": ["src/**/*"],
   "exclude": ["node_modules", "dist", "**/*.spec.ts"]
 }

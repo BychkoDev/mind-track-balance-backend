@@ -1,0 +1,36 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+  moduleFormat = "cjs"  
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+
+model AttentionRule {
+  uuid        String   @id @default(uuid())
+  userUuid    String   @map("user_uuid")
+  domain      String
+  isBlocked     Boolean  @default(true) @map("is_blocked")
+  isTracked     Boolean  @default(true) @map("is_tracked")
+  dailyLimitSec Int?     @map("daily_limit_sec")
+  createdAt     DateTime @default(now()) @map("created_at") @db.Timestamptz
+  updatedAt   DateTime @updatedAt @map("updated_at") @db.Timestamptz
+
+  @@unique([userUuid, domain])
+  @@map("attention_rules")
+}
+
+model AttentionLog {
+  uuid        String   @id @default(uuid())
+  userUuid    String   @map("user_uuid")
+  domain      String
+  durationSec Int      @map("duration_sec")
+  date        DateTime @db.Date 
+  createdAt   DateTime @default(now()) @map("created_at") @db.Timestamptz
+
+  @@unique([userUuid, domain, date])
+  @@map("attention_logs")
+}

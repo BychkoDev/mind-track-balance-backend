@@ -74,3 +74,4 @@ libs/**/*
 !libs/**/*.ts
 !libs/**/*.json
 libs/**/*.d.ts
+project_docs/

@@ -4,7 +4,7 @@ import { RolesGuard } from '@app/common/guards/roles.guard';
 import { Role } from '../../../../../packages/users-db/src/generated/prisma/enums';
 import { Roles } from '@app/common/decorators/roles.decorator';
 import { EventPattern, Payload } from '@nestjs/microservices';
-
+import { CurrentUser } from '../../../../../libs/common/src/decorators/user.decorator';
 import { UserCreatedEvent } from './events/user-create.event';
 import { UpdateSettingsDto } from './dto/update-settings.dto';
 import { UpdateProfileDto } from './dto/update-profile.dto';
@@ -18,9 +18,8 @@ export class UserController {
   @Get('me')
   @Roles(Role.USER, Role.ADMIN)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
-  async getProfile(@Req() req: { user: { id: string } }) {
-    const userUuid = req.user.id;
-    const profile = await this.userService.getProfile(userUuid);
+  async getProfile(@CurrentUser() user: { sub: string }) {
+    const profile = await this.userService.getProfile(user.sub);
     return profile || { message: 'Profile not found' };
   }
 
@@ -28,17 +27,16 @@ export class UserController {
   @Roles(Role.USER, Role.ADMIN)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  async updateSettings(@Req() req: { user: { sub: string } }, @Body() updateSettingsDto: UpdateSettingsDto) {
-    const userUuid = req.user.sub;
-    return await this.userService.updateSettings(userUuid, updateSettingsDto);
+  async updateSettings(@CurrentUser() user: { sub: string }, @Body() updateSettingsDto: UpdateSettingsDto) {
+    return await this.userService.updateSettings(user.sub, updateSettingsDto);
   }
 
   @Patch('profile')
   @Roles(Role.USER, Role.ADMIN)
   @UseGuards(AuthGuard('jwt'), RolesGuard)
   @UsePipes(new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true }))
-  async updateProfile(@Req() req: { user: { sub: string } }, @Body() updateProfileDto: UpdateProfileDto) {
-    const userUuid = req.user.sub;
+  async updateProfile(@CurrentUser() user: { sub: string }, @Body() updateProfileDto: UpdateProfileDto) {
+    const userUuid = user.sub;
     return await this.userService.updateProfile(userUuid, updateProfileDto);
   }
 

@@ -44,15 +44,57 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   }
 
-  // Ask background worker for stats
+  // Fetch stats and render
   chrome.runtime.sendMessage({ action: 'getStats' }, (response) => {
     renderStats(response || {});
+  });
+
+  // Check current domain tracking status
+  chrome.runtime.sendMessage({ action: 'getCurrentDomainInfo' }, (response) => {
+    if (response && response.domain && response.domain !== 'null' && !response.isTracked) {
+      document.getElementById('trackingBanner').style.display = 'block';
+      document.getElementById('currentDomainName').textContent = response.domain;
+      
+      document.getElementById('trackDomainBtn').onclick = () => {
+        const btn = document.getElementById('trackDomainBtn');
+        btn.textContent = 'Adding...';
+        chrome.runtime.sendMessage({ action: 'addTrackedDomain', domain: response.domain }, (res) => {
+          if (res && res.status === 'ok') {
+            document.getElementById('trackingBanner').style.display = 'none';
+          } else {
+            btn.textContent = 'Failed';
+          }
+        });
+      };
+    }
+  });
+
+  // Ask for user name
+  chrome.runtime.sendMessage({ action: 'getUserName' }, (name) => {
+    if (name) {
+      document.getElementById('welcome-msg').textContent = `Welcome, ${name}!`;
+    } else {
+      document.getElementById('welcome-msg').textContent = `Welcome! (Not logged in)`;
+    }
   });
 
   // Reset button logic
   document.getElementById('resetBtn').addEventListener('click', () => {
     chrome.storage.local.set({ domainStats: {} }, () => {
       renderStats({});
+    });
+  });
+
+  // Sync button logic
+  document.getElementById('syncBtn').addEventListener('click', () => {
+    const btn = document.getElementById('syncBtn');
+    btn.textContent = 'Syncing...';
+    chrome.runtime.sendMessage({ action: 'syncNow' }, () => {
+      // After sync, get stats again to refresh UI (should be empty if successful)
+      chrome.runtime.sendMessage({ action: 'getStats' }, (response) => {
+        renderStats(response || {});
+        btn.textContent = 'Sync Now';
+      });
     });
   });
 });

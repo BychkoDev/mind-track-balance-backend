@@ -42,6 +42,8 @@ model User {
   lastVisit         DateTime?  @map("last_visit")
   timezone          String     @default("Europe/Kiev")
   locale            Locale     @default(UK)
+  attentionSyncEnabled Boolean @default(false) @map("attention_sync_enabled")
+
   @@map("users")
 }
 

@@ -3,8 +3,9 @@ import { ConfigService } from '@nestjs/config';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 import { MindTrackPrismaService } from '@app/prisma-mind-track';
 
-const FALLBACK_SYSTEM_PROMPT = `You are an expert psychotherapist analyzing a journal entry. 
+const FALLBACK_SYSTEM_PROMPT = `You are an empathetic, insightful psychological assistant and life coach. 
 Your task is to analyze the text and return exactly a JSON object without any markdown wrapping (no \`\`\`json) and no conversational filler.
+DO NOT provide any medical diagnoses or psychotherapeutic advice. If the user mentions crisis-like situations (suicide, severe depression, harm to self or others), respond with a neutral safety message advising them to seek professional help, but format it within the JSON structure.
 Format:
 {
   "sentiment": "POSITIVE" | "NEUTRAL" | "NEGATIVE",
@@ -78,6 +79,44 @@ export class AiService {
       this.logger.error('Error calling Gemini API', error);
       return null;
     }
+  }
+
+  async generateWeeklyAdvice(entries: any[]): Promise<{ content: string; relatedTopics: string[] } | null> {
+    if (!this.genAI || entries.length === 0) return null;
+
+    const systemInstruction = `You are an empathetic, insightful psychological assistant and life coach.
+Your task is to analyze a user's journaling entries for the past week.
+Identify patterns in their mood, stress, energy, and activities (context/tags).
+Provide a concise, highly personalized, and actionable piece of advice (around 3-4 sentences) based on their data.
+Also extract 2-4 related topics (e.g. "Work-life balance", "Sleep", "Social connection") from the analysis.
+Return exactly a JSON object without markdown formatting:
+{
+  "content": "Your advice text here...",
+  "relatedTopics": ["Topic 1", "Topic 2"]
+}`;
+
+    // Format entries into a readable string
+    const entriesSummary = entries.map(e => `
+Date: ${e.createdAt}
+Mood: ${e.mood}/5, Stress: ${e.stressLevel}/5, Energy: ${e.energy}/5
+Contexts: ${e.contexts?.join(', ') || 'none'}
+Tags: ${e.tags?.map((t: any) => t.name).join(', ') || 'none'}
+Text: ${e.description || 'none'}
+`).join('\n---\n');
+
+    const prompt = `Here are the user's entries for the week:\n${entriesSummary}\n\nPlease generate the weekly advice JSON.`;
+
+    const result = await this.generateCustomJson(prompt, systemInstruction);
+    
+    if (result && result.content && Array.isArray(result.relatedTopics)) {
+        return {
+            content: result.content,
+            relatedTopics: result.relatedTopics
+        };
+    }
+    
+    this.logger.warn('Failed to generate proper weekly advice JSON from AI');
+    return null;
   }
 
   async generateCustomJson(prompt: string, systemInstruction: string): Promise<any | null> {

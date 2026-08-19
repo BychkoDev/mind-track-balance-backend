@@ -38,11 +38,22 @@ export class MindTrackRepository {
     });
   }
 
-  async findEntries(userUuid: string) {
+  async findEntries(
+    userUuid: string,
+    filters?: { limit?: number; skip?: number; startDate?: Date }
+  ) {
+    const whereClause: any = { userUuid };
+
+    if (filters?.startDate) {
+      whereClause.createdAt = { gte: filters.startDate };
+    }
+
     return await this.prisma.mindTrackEntry.findMany({
-      where: { userUuid },
+      where: whereClause,
       include: { tags: true },
       orderBy: { createdAt: 'desc' },
+      take: filters?.limit,
+      skip: filters?.skip,
     });
   }
 

@@ -11,6 +11,7 @@ async function bootstrap() {
   const port = configService.get<number>('PORT_MIND_TRACK') || 3004;
   // app.useGlobalFilters(new AllExceptionsFilter());
 
+  app.enableCors();
   // await app.listen(port);
   // console.log("date now -->" + new Date())
   await app.listen(port);

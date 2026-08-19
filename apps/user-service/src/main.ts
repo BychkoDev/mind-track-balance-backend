@@ -8,6 +8,7 @@ process.env.TZ = process.env.TZ || 'Europe/Kiev';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableCors();
 
   const configService = app.get(ConfigService);
   const port = configService.get<number>('PORT_USER') || 4091;

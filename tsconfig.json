@@ -24,9 +24,10 @@
       "@app/prisma-users": ["packages/users-db/src"],
       "@app/prisma-media": ["packages/media-db/src"],
       "@app/prisma-content": ["packages/content-db/src"],
-      "@app/prisma-mind-track": ["packages/mind-track-db/src"],
+      "@app/prisma-attention": ["packages/attention-db/src"],
+      "@app/prisma-mind-track": ["packages/mind-track-db/src"]
     },
-    "outDir": "./dist",
+    "outDir": "./dist"
   },
   "exclude": ["node_modules", "dist"]
 }

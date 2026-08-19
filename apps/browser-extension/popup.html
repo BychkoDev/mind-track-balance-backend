@@ -15,11 +15,24 @@
   </style>
 </head>
 <body>
+  <div id="welcome-section" style="text-align: center; margin-bottom: 16px;">
+    <h3 id="welcome-msg" style="margin: 0; color: #a5b4fc;">Welcome!</h3>
+    <p style="margin: 4px 0 0 0; font-size: 13px; color: #94a3b8;">I am next to you.</p>
+  </div>
   <h2>Mind-Track Activity</h2>
+  
+  <div id="trackingBanner" style="display: none; background-color: #f59e0b; color: #fff; padding: 10px; border-radius: 8px; margin-bottom: 12px; text-align: center;">
+    <div style="font-weight: bold; margin-bottom: 6px;">Domain <span id="currentDomainName"></span> is not tracked!</div>
+    <button id="trackDomainBtn" style="background-color: #fff; color: #f59e0b; padding: 4px 8px; font-weight: bold;">Add to tracking</button>
+  </div>
+
   <div class="stats-container" id="stats">
     <div style="text-align: center; color: #94a3b8; margin-top: 20px;">Loading stats...</div>
   </div>
-  <button id="resetBtn">Reset Stats (Debug)</button>
+  <div style="display: flex; gap: 8px; margin-top: 16px;">
+    <button id="syncBtn" style="background-color: #10b981;">Sync Now</button>
+    <button id="resetBtn" style="background-color: #ef4444;">Reset (Debug)</button>
+  </div>
   <script src="popup.js"></script>
 </body>
 </html>
